@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using VibeTracker.Core;
@@ -84,7 +85,7 @@ public class DashboardViewModel : INotifyPropertyChanged
         {
             Status = state.Status;
             CurrentTask = state.CurrentTask;
-            LastUpdate = state.UpdatedAt;
+            LastUpdate = FormatDateTime(state.UpdatedAt, includeDate: true);
             TotalFeatures = state.Features?.Count ?? 0;
             DoneFeatures = state.Features?.Count(f => f.Status == "done") ?? 0;
         }
@@ -125,6 +126,16 @@ public class DashboardViewModel : INotifyPropertyChanged
         }
     }
 
+    private static string FormatDateTime(string value, bool includeDate)
+    {
+        if (!DateTime.TryParse(value, out var parsed))
+            return value;
+
+        return includeDate
+            ? parsed.ToString("yyyy-MM-dd HH:mm")
+            : parsed.ToString("HH:mm");
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -133,6 +144,15 @@ public class DashboardViewModel : INotifyPropertyChanged
 public class LogItemViewModel
 {
     public string Time { get; set; } = "";
+    public string DisplayTime
+    {
+        get
+        {
+            if (DateTime.TryParse(Time, out var parsed))
+                return parsed.ToString("HH:mm");
+            return Time;
+        }
+    }
     public string Source { get; set; } = "";
     public string Action { get; set; } = "";
     public string Type { get; set; } = "";
