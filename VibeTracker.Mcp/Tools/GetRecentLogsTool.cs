@@ -17,7 +17,8 @@ public class GetRecentLogsTool : IMcpTool
         type = "object",
         properties = new
         {
-            n = new { type = "number", description = "返回条数，默认 10" }
+            n = new { type = "number", description = "返回条数，默认 10" },
+            source = new { type = "string", description = "按 agent 来源筛选: claude / codex" }
         },
         required = Array.Empty<string>()
     };
@@ -28,7 +29,12 @@ public class GetRecentLogsTool : IMcpTool
         if (arguments.TryGetProperty("n", out var nEl) && nEl.TryGetInt32(out var val))
             n = val;
 
-        var logs = _ctx.File.ReadJsonLinesReverse<LogEntry>("log.jsonl", n);
+        var logs = _ctx.File.ReadJsonLinesReverse<LogEntry>("log.jsonl", int.MaxValue);
+
+        if (arguments.TryGetProperty("source", out var src) && src.GetString() is { Length: > 0 } s)
+            logs = logs.Where(l => l.Source == s).ToList();
+
+        logs = logs.TakeLast(n).ToList();
 
         var results = logs.Select(l => new
         {

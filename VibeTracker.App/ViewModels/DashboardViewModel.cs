@@ -78,16 +78,41 @@ public class DashboardViewModel : INotifyPropertyChanged
     public List<LogItemViewModel> RecentLogs { get; } = new();
     public List<FindingItemViewModel> OpenProblems { get; } = new();
 
+    private bool _isCorrupted;
+    public bool IsCorrupted
+    {
+        get => _isCorrupted;
+        set { _isCorrupted = value; OnPropertyChanged(); OnPropertyChanged(nameof(DataHint)); }
+    }
+    public string DataHint => IsCorrupted ? "⚠️ 数据文件异常，请检查 .vibe/state.json" : "";
+
     public void Refresh()
     {
-        var state = _file.ReadJson<StateModel>("state.json");
-        if (state != null)
+        // 用 TryReadJson 检测损坏
+        var (data, error) = _file.TryReadJson<StateModel>("state.json");
+        if (data != null)
         {
-            Status = state.Status;
-            CurrentTask = state.CurrentTask;
-            LastUpdate = FormatDateTime(state.UpdatedAt, includeDate: true);
-            TotalFeatures = state.Features?.Count ?? 0;
-            DoneFeatures = state.Features?.Count(f => f.Status == "done") ?? 0;
+            IsCorrupted = false;
+            Status = data.Status;
+            CurrentTask = data.CurrentTask;
+            LastUpdate = FormatDateTime(data.UpdatedAt, includeDate: true);
+            TotalFeatures = data.Features?.Count ?? 0;
+            DoneFeatures = data.Features?.Count(f => f.Status == "done") ?? 0;
+        }
+        else
+        {
+            IsCorrupted = true;
+            _file.ReadJson<StateModel>("state.json"); // 尝试备份恢复
+            var restored = _file.TryReadJson<StateModel>("state.json");
+            if (restored.Data != null)
+            {
+                IsCorrupted = false;
+                Status = restored.Data.Status;
+                CurrentTask = restored.Data.CurrentTask;
+                LastUpdate = FormatDateTime(restored.Data.UpdatedAt, includeDate: true);
+                TotalFeatures = restored.Data.Features?.Count ?? 0;
+                DoneFeatures = restored.Data.Features?.Count(f => f.Status == "done") ?? 0;
+            }
         }
 
         // 最近日志

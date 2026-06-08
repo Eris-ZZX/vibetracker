@@ -85,15 +85,33 @@ features: 功能列表 [{id, title, status}] 用于更新进度
 
             if (arguments.TryGetProperty("features", out var feats) && feats.ValueKind == JsonValueKind.Array)
             {
-                state.Features = feats.EnumerateArray().Select(f =>
+                // 按 ID 合并：传入的功能更新匹配项，保留未提及的已有功能
+                var incoming = feats.EnumerateArray().Select(f =>
                 {
                     var item = new FeatureItem();
                     if (f.TryGetProperty("id", out var fid)) item.Id = fid.GetString() ?? "";
                     if (f.TryGetProperty("title", out var ft)) item.Title = ft.GetString() ?? "";
                     if (f.TryGetProperty("status", out var fs)) item.Status = fs.GetString() ?? "todo";
                     return item;
-                }).ToList();
+                }).ToDictionary(f => f.Id, f => f);
+
+                state.Features = state.Features.Select(f =>
+                {
+                    if (incoming.TryGetValue(f.Id, out var update))
+                    {
+                        f.Status = update.Status;
+                        if (!string.IsNullOrWhiteSpace(update.Title)) f.Title = update.Title;
+                        incoming.Remove(f.Id);
+                    }
+                    return f;
+                }).Concat(incoming.Values).ToList();
             }
+
+            // 校验状态
+            var validator = new SchemaValidator();
+            var validation = validator.ValidateState(state);
+            if (!validation.Valid)
+                throw new ArgumentException($"状态校验失败: {string.Join("; ", validation.Errors)}");
 
             // 更新元数据
             state.Version++;

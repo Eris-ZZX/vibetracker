@@ -2,14 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace VibeTracker.Core.Models;
 
-public enum LogType
-{
-    [JsonPropertyName("action")] Action,
-    [JsonPropertyName("decision")] Decision,
-    [JsonPropertyName("problem")] Problem,
-    [JsonPropertyName("next")] Next
-}
-
 public class LogEntry
 {
     [JsonPropertyName("id")]

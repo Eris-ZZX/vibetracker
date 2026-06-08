@@ -277,7 +277,14 @@ public class FileEngine
     public void WriteMarkdown(string relativePath, string content)
     {
         var filePath = Path.Combine(_vibeDir, relativePath);
-        File.WriteAllText(filePath, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+        var tempPath = filePath + ".tmp";
+
+        File.WriteAllText(tempPath, content, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
+        using (var fs = new FileStream(tempPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            fs.Flush(true);
+
+        File.Move(tempPath, filePath, overwrite: true);
     }
 
     // ─────── 备份 ───────

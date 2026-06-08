@@ -19,6 +19,7 @@ public class GetFoundTool : IMcpTool
         {
             type = new { type = "string", description = "筛选类型: good / pit，不填则全部" },
             tag = new { type = "string", description = "筛选标签: @frontend 等，不填则全部" },
+            source = new { type = "string", description = "按 agent 来源筛选: claude / codex" },
             limit = new { type = "number", description = "返回条数上限，默认 20" }
         },
         required = Array.Empty<string>()
@@ -37,6 +38,9 @@ public class GetFoundTool : IMcpTool
 
         if (arguments.TryGetProperty("tag", out var tagFilter) && tagFilter.GetString() is { Length: > 0 } tg)
             findings = findings.Where(f => f.Tag == tg).ToList();
+
+        if (arguments.TryGetProperty("source", out var srcFilter) && srcFilter.GetString() is { Length: > 0 } s)
+            findings = findings.Where(f => f.Source == s).ToList();
 
         var results = findings.Take(limit).Select(f => new
         {

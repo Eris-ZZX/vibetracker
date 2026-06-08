@@ -4,23 +4,6 @@ using System.Text.Json.Serialization;
 
 namespace VibeTracker.Core.Models;
 
-public enum ProjectStatus
-{
-    [JsonPropertyName("in_progress")] InProgress,
-    [JsonPropertyName("paused")] Paused,
-    [JsonPropertyName("blocked")] Blocked,
-    [JsonPropertyName("done")] Done
-}
-
-public enum FeatureStatus
-{
-    [JsonPropertyName("todo")] Todo,
-    [JsonPropertyName("in_progress")] InProgress,
-    [JsonPropertyName("done")] Done,
-    [JsonPropertyName("blocked")] Blocked,
-    [JsonPropertyName("dropped")] Dropped
-}
-
 public class FeatureItem
 {
     [JsonPropertyName("id")]

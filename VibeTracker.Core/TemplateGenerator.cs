@@ -80,7 +80,7 @@ public class TemplateGenerator
 # Part 1. PRD：产品需求文档
 
 ## 1. 产品定位
-{{一句话描述 + 核心价值}}
+（待填写：描述这个产品是什么、解决什么问题）
 
 ## 2. 产品目标
 | 目标 | 说明 |
@@ -97,7 +97,7 @@ public class TemplateGenerator
 - _
 
 ## 6. MVP 范围
-{{首期做哪些}}
+（待填写：首期做哪些功能）
 
 ## 7. PRD 验收标准
 | 验收项 | 标准 |
@@ -112,18 +112,18 @@ public class TemplateGenerator
 |----|------|------|
 
 ## 2. 系统架构
-{{架构描述}}
+（待填写：系统架构描述）
 
 ## 3. 核心目录结构
 ```
-{{目录树}}
+（待填写：目录树）
 ```
 
 ## 4. 核心数据类型
-{{数据模型}}
+（待填写：数据模型）
 
 ## 5. 各模块详细设计
-{{按模块展开}}
+（待填写：按模块展开）
 
 ## 6. 阶段实施计划
 | 阶段 | 交付重点 |
@@ -153,13 +153,14 @@ public class TemplateGenerator
 ## Vibe Tracker — 过程追踪
 
 会话开始调 get_context（无参数），了解项目状态。
+如首次运行或需要完整规划，调用 get_plan 读取 plan.md 模板。
 每完成一个有意义事项调 add_log：
   action → {type, action}
   decision → {type, action, reason}
   problem → {type, action, cause, resolved: false}
   next → {type, action}
 每完成一个功能后，同步更新 plan.md 的 checkbox 并调 update_state：
-  打开 plan.md → 勾选对应功能 → update_state 传 features 数组
+  打开 plan.md → 勾选对应功能 → update_state 传该功能的 features（只传变更项即 可，支持增量合并）
 遇到经验或坑调 add_finding：
   {type: ""good""|""pit"", tag, title, body, consequence?}
 新增功能或调整范围时，在 plan.md 增加条目并调 update_state 追加 features

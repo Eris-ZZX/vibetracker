@@ -113,6 +113,14 @@
                             </StackPanel>
                         </Grid>
 
+                        <!-- 数据异常提示 -->
+                        <Border x:Name="DataErrorBanner" Background="{StaticResource Brush.WarningSoft}"
+                                CornerRadius="6" Padding="10,8" Margin="0,14,0,0"
+                                Visibility="Collapsed" BorderBrush="{StaticResource Brush.Warning}" BorderThickness="1">
+                            <TextBlock x:Name="TxtDataError" Text="" FontSize="12"
+                                       Foreground="{StaticResource Brush.Warning}" TextWrapping="Wrap"/>
+                        </Border>
+
                         <!-- 指标区 -->
                         <Grid Margin="0,22,0,0">
                             <Grid.ColumnDefinitions>

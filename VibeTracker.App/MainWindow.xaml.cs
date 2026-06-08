@@ -111,13 +111,7 @@ public partial class MainWindow : Window
             _currentDashboard.Refresh();
 
             TxtProjectName.Text = card.Name;
-            TxtStatusIcon.Text = _currentDashboard.StatusIcon;
-            TxtCurrentTask.Text = _currentDashboard.CurrentTask;
-            TxtLastUpdate.Text = _currentDashboard.LastUpdate;
-            TxtAgentActivity.Text = _currentDashboard.AgentActivity;
-            TxtProgress.Text = _currentDashboard.ProgressText;
-
-            ProgressBar.Value = _currentDashboard.ProgressPercent;
+            SyncDashboardUI();
 
             RefreshDashboardLists();
 
@@ -129,6 +123,30 @@ public partial class MainWindow : Window
             MessageBox.Show($"加载项目数据失败: {ex.Message}\n\n请确认 .vibe/ 目录结构完整。",
                 "加载失败", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
+    }
+
+    private void SyncDashboardUI()
+    {
+        if (_currentDashboard == null) return;
+
+        TxtStatusIcon.Text = _currentDashboard.IsCorrupted ? "⚠️ 数据异常" : _currentDashboard.StatusIcon;
+        TxtCurrentTask.Text = _currentDashboard.CurrentTask;
+        TxtLastUpdate.Text = _currentDashboard.LastUpdate;
+        TxtAgentActivity.Text = _currentDashboard.AgentActivity;
+        TxtProgress.Text = _currentDashboard.ProgressText;
+        ProgressBar.Value = _currentDashboard.ProgressPercent;
+
+        if (_currentDashboard.IsCorrupted)
+        {
+            DataErrorBanner.Visibility = Visibility.Visible;
+            TxtDataError.Text = "⚠️ state.json 可能已损坏。请检查 .vibe/ 目录，或按 F2 重新配置项目后让 agent 调用 update_state 恢复。";
+        }
+        else
+        {
+            DataErrorBanner.Visibility = Visibility.Collapsed;
+        }
+
+        RefreshDashboardLists();
     }
 
     private void RefreshDashboardLists()
@@ -214,16 +232,7 @@ public partial class MainWindow : Window
     {
         _currentDashboard?.Refresh();
         RefreshProjectList();
-        if (_currentDashboard != null)
-        {
-            TxtStatusIcon.Text = _currentDashboard.StatusIcon;
-            TxtCurrentTask.Text = _currentDashboard.CurrentTask;
-            TxtLastUpdate.Text = _currentDashboard.LastUpdate;
-            TxtAgentActivity.Text = _currentDashboard.AgentActivity;
-            TxtProgress.Text = _currentDashboard.ProgressText;
-            ProgressBar.Value = _currentDashboard.ProgressPercent;
-            RefreshDashboardLists();
-        }
+        SyncDashboardUI();
         Title = $"VibeTracker — 已刷新 ({DateTime.Now:HH:mm:ss})";
     }
 
@@ -247,19 +256,7 @@ public partial class MainWindow : Window
         {
             _currentDashboard?.Refresh();
             RefreshProjectList();
-
-            if (_currentDashboard != null)
-            {
-                TxtStatusIcon.Text = _currentDashboard.StatusIcon;
-                TxtCurrentTask.Text = _currentDashboard.CurrentTask;
-                TxtLastUpdate.Text = _currentDashboard.LastUpdate;
-                TxtAgentActivity.Text = _currentDashboard.AgentActivity;
-                TxtProgress.Text = _currentDashboard.ProgressText;
-                ProgressBar.Value = _currentDashboard.ProgressPercent;
-                RefreshDashboardLists();
-            }
-
-            // 状态栏提示
+            SyncDashboardUI();
             Title = $"VibeTracker — 已刷新 ({DateTime.Now:HH:mm:ss})";
         }
         else if (e.Key == Key.F2 && _currentDashboard != null)
