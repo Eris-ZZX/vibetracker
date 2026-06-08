@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.Json;
 using VibeTracker.Core;
 
@@ -26,7 +27,15 @@ public class CheckConsistencyTool : IMcpTool
         {
             consistent = result.Consistent,
             warnings = result.Warnings,
-            suggestions = result.Suggestions
+            suggestions = result.Suggestions,
+            unresolvedProblems = result.UnresolvedProblems.Select(p => new
+            {
+                id = p.Id,
+                action = p.Action,
+                cause = p.Cause,
+                time = p.Time,
+                source = p.Source
+            })
         }, new JsonSerializerOptions { WriteIndented = true });
     }
 }

@@ -28,9 +28,28 @@ public class GetContextTool : IMcpTool
 
     public string Execute(JsonElement arguments)
     {
-        var state = _ctx.File.ReadJson<StateModel>("state.json");
-        var allLogs = _ctx.File.ReadJsonLines<LogEntry>("log.jsonl");
-        var allFindings = _ctx.File.ReadJsonLines<FindingEntry>("findings.jsonl");
+        // 尝试恢复备份，失败则明确报错而非静默返回空状态
+        StateModel state;
+        string? stateError = null;
+        var (data, err) = _ctx.File.TryReadJson<StateModel>("state.json");
+        if (data == null && err != null)
+        {
+            var restored = _ctx.File.TryRecoverJson<StateModel>("state.json");
+            if (restored != null)
+            {
+                data = restored;
+            }
+            else
+            {
+                state = new StateModel();
+                stateError = "state.json 损坏且无法从备份恢复，返回默认空状态。请检查 .vibe/state.json。";
+            }
+        }
+        state = data ?? new StateModel();
+
+        var (allLogs, corruptedLogLines) = _ctx.File.ReadJsonLinesWithStats<LogEntry>("log.jsonl");
+        var (allFindings, corruptedFindingLines) = _ctx.File.ReadJsonLinesWithStats<FindingEntry>("findings.jsonl");
+        var config = _ctx.File.ReadJson<ConfigModel>("config.json");
         var checker = new ConsistencyChecker(_ctx.File);
 
         // 功能摘要
@@ -88,7 +107,17 @@ public class GetContextTool : IMcpTool
             },
             recentLogs,
             recentPits,
-            warnings = quickWarnings
+            corruptedLogLines,
+            corruptedFindingLines,
+            warnings = quickWarnings,
+            dataError = stateError,
+            config = new
+            {
+                projectName = config?.ProjectName ?? "",
+                seed = config?.Seed ?? "",
+                contextLines = config?.AgentPreferences?.ContextLines ?? 5,
+                autoCheckConsistency = config?.AgentPreferences?.AutoCheckConsistency ?? true
+            }
         };
 
         return JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });

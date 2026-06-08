@@ -173,6 +173,58 @@ public class FileEngine
         }
     }
 
+    /// <summary>
+    /// 尝试从最新备份恢复 JSON 文件。仅在 ReadJson/TryReadJson 发现损坏时调用。
+    /// </summary>
+    public T? TryRecoverJson<T>(string relativePath) where T : class
+    {
+        var latestBak = GetLatestBackup(relativePath);
+        if (latestBak == null)
+            return null;
+
+        try
+        {
+            var json = File.ReadAllText(latestBak, Encoding.UTF8);
+            var data = JsonSerializer.Deserialize<T>(json);
+            if (data != null)
+            {
+                WithLock(() => AtomicWriteJson(relativePath, data));
+                return data;
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
+    /// <summary>
+    /// 读 JSONL 文件，返回解析信息（含跳过的损坏行数）。
+    /// </summary>
+    public (List<T> Data, int CorruptedLines) ReadJsonLinesWithStats<T>(string relativePath) where T : new()
+    {
+        var filePath = Path.Combine(_vibeDir, relativePath);
+        var results = new List<T>();
+        var corrupted = 0;
+
+        if (!File.Exists(filePath))
+            return (results, 0);
+
+        foreach (var line in File.ReadLines(filePath, Encoding.UTF8))
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            try
+            {
+                var entry = JsonSerializer.Deserialize<T>(line);
+                if (entry != null) results.Add(entry);
+            }
+            catch (JsonException) { corrupted++; }
+        }
+
+        return (results, corrupted);
+    }
+
     // ─────── 追加写 JSONL ───────
 
     public string AppendJsonLine<T>(string relativePath, T entry, string? id = null)

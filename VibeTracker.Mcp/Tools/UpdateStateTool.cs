@@ -85,15 +85,28 @@ features: 功能列表 [{id, title, status}] 用于更新进度
 
             if (arguments.TryGetProperty("features", out var feats) && feats.ValueKind == JsonValueKind.Array)
             {
-                // 按 ID 合并：传入的功能更新匹配项，保留未提及的已有功能
-                var incoming = feats.EnumerateArray().Select(f =>
+                // 预校验传入项
+                var items = new List<FeatureItem>();
+                var ids = new HashSet<string>();
+                foreach (var f in feats.EnumerateArray())
                 {
-                    var item = new FeatureItem();
-                    if (f.TryGetProperty("id", out var fid)) item.Id = fid.GetString() ?? "";
-                    if (f.TryGetProperty("title", out var ft)) item.Title = ft.GetString() ?? "";
-                    if (f.TryGetProperty("status", out var fs)) item.Status = fs.GetString() ?? "todo";
-                    return item;
-                }).ToDictionary(f => f.Id, f => f);
+                    var id = f.TryGetProperty("id", out var fid) ? fid.GetString() : null;
+                    if (string.IsNullOrWhiteSpace(id))
+                        throw new ArgumentException("features 数组中每项必须包含非空 id 字段");
+                    if (ids.Contains(id!))
+                        throw new ArgumentException($"features 中存在重复 id: {id}");
+                    ids.Add(id!);
+
+                    items.Add(new FeatureItem
+                    {
+                        Id = id!,
+                        Title = f.TryGetProperty("title", out var ft) ? ft.GetString() ?? "" : "",
+                        Status = f.TryGetProperty("status", out var fs) ? fs.GetString() ?? "todo" : "todo"
+                    });
+                }
+
+                // 按 ID 合并：传入的功能更新匹配项，保留未提及的已有功能
+                var incoming = items.ToDictionary(f => f.Id, f => f);
 
                 state.Features = state.Features.Select(f =>
                 {

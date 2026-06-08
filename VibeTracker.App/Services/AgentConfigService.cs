@@ -31,8 +31,18 @@ public class AgentConfigService
 
     // ═══════ Claude Desktop ═══════
 
+    private (bool, string)? CheckMcpExe()
+    {
+        if (!File.Exists(McpExePath))
+            return (false, $"MCP 服务端不存在: {McpExePath}\n请重新构建或安装 VibeTracker。");
+        return null;
+    }
+
     public (bool Success, string Message) ConfigureClaudeDesktop()
     {
+        var check = CheckMcpExe();
+        if (check != null) return check.Value;
+
         var configPath = FindClaudeDesktopConfig();
         if (configPath == null)
             return (false, "未找到 Claude Desktop 配置文件。\n请打开 Claude Desktop → Settings → Developer → Edit Config，确认文件存在后重试。");
@@ -138,6 +148,9 @@ public class AgentConfigService
 
     public (bool Success, string Message) ConfigureCodexDesktop()
     {
+        var check = CheckMcpExe();
+        if (check != null) return check.Value;
+
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var configPath = Path.Combine(userProfile, ".codex", "config.toml");
 
@@ -196,6 +209,9 @@ enabled = true
 
     public (bool Success, string Message) ConfigureClaudeCode()
     {
+        var check = CheckMcpExe();
+        if (check != null) return check.Value;
+
         try
         {
             var claudeDir = Path.Combine(_projectPath, ".claude");

@@ -13,7 +13,8 @@ public class ConsistencyChecker
     public record ConsistencyResult(
         bool Consistent,
         List<string> Warnings,
-        List<string> Suggestions
+        List<string> Suggestions,
+        List<LogEntry> UnresolvedProblems
     );
 
     private readonly FileEngine _file;
@@ -28,9 +29,30 @@ public class ConsistencyChecker
         var warnings = new List<string>();
         var suggestions = new List<string>();
 
-        var state = _file.ReadJson<StateModel>("state.json");
-        var allLogs = _file.ReadJsonLines<LogEntry>("log.jsonl");
-        var allFindings = _file.ReadJsonLines<FindingEntry>("findings.jsonl");
+        // 用 TryReadJson 检测损坏并尝试恢复
+        StateModel state;
+        var (data, err) = _file.TryReadJson<StateModel>("state.json");
+        if (data == null && err != null)
+        {
+            var restored = _file.TryRecoverJson<StateModel>("state.json");
+            if (restored != null)
+            {
+                data = restored;
+                warnings.Add("state.json 已从备份恢复，建议验证数据完整性");
+            }
+            else
+            {
+                state = new StateModel();
+                warnings.Add("state.json 损坏且无法从备份恢复，一致性检查结果不可靠");
+            }
+        }
+        state = data ?? new StateModel();
+
+        var (allLogs, corruptedLogs) = _file.ReadJsonLinesWithStats<LogEntry>("log.jsonl");
+        var (allFindings, _) = _file.ReadJsonLinesWithStats<FindingEntry>("findings.jsonl");
+
+        if (corruptedLogs > 0)
+            warnings.Add($"log.jsonl 中有 {corruptedLogs} 行损坏数据被跳过");
 
         // 1. 状态过期检测
         if (!string.IsNullOrEmpty(state.UpdatedAt) && allLogs.Count > 0)
@@ -71,7 +93,7 @@ public class ConsistencyChecker
             .ToList();
 
         if (unresolvedProblems.Count > 0)
-            warnings.Add($"有 {unresolvedProblems.Count} 个未解决的问题");
+            warnings.Add($"有 {unresolvedProblems.Count} 个未解决的问题（详情见 unresolvedProblems 字段）");
 
         // 5. features 数据完整性
         if (state.Features == null || state.Features.Count == 0)
@@ -101,7 +123,8 @@ public class ConsistencyChecker
         return new ConsistencyResult(
             warnings.Count == 0,
             warnings,
-            suggestions
+            suggestions,
+            unresolvedProblems
         );
     }
 
@@ -111,8 +134,18 @@ public class ConsistencyChecker
     public List<string> QuickCheck()
     {
         var warnings = new List<string>();
-        var state = _file.ReadJson<StateModel>("state.json");
-        var allLogs = _file.ReadJsonLines<LogEntry>("log.jsonl");
+
+        // 用 TryReadJson 检测损坏，必要时尝试恢复
+        var (data, err) = _file.TryReadJson<StateModel>("state.json");
+        StateModel state;
+        if (data == null && err != null)
+        {
+            var restored = _file.TryRecoverJson<StateModel>("state.json");
+            if (restored != null) data = restored;
+        }
+        state = data ?? new StateModel();
+
+        var (allLogs, _) = _file.ReadJsonLinesWithStats<LogEntry>("log.jsonl");
 
         if (!string.IsNullOrEmpty(state.UpdatedAt) && allLogs.Count > 0)
         {
