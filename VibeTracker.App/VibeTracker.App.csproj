@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\VibeTracker.Core\VibeTracker.Core.csproj" />
+    <ProjectReference Include="..\VibeTracker.Mcp\VibeTracker.Mcp.csproj" ReferenceOutputAssembly="false" PrivateAssets="all" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+  </PropertyGroup>
+
+  <Target Name="CopyMcpExeToOutput" AfterTargets="Build">
+    <ItemGroup>
+      <McpOutputFiles Include="..\VibeTracker.Mcp\bin\$(Configuration)\net8.0\VibeTracker.Mcp.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(McpOutputFiles)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

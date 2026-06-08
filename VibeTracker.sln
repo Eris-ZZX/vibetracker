@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeTracker.Core", "VibeTracker.Core\VibeTracker.Core.csproj", "{70B75563-E5EC-4A50-B3C9-622F1FA0F708}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeTracker.Mcp", "VibeTracker.Mcp\VibeTracker.Mcp.csproj", "{4D52B4C7-7939-491A-9788-2C5806A1982C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeTracker.App", "VibeTracker.App\VibeTracker.App.csproj", "{E373632E-DAEE-42E2-AAB2-61224FDACFCA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70B75563-E5EC-4A50-B3C9-622F1FA0F708}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70B75563-E5EC-4A50-B3C9-622F1FA0F708}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70B75563-E5EC-4A50-B3C9-622F1FA0F708}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70B75563-E5EC-4A50-B3C9-622F1FA0F708}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D52B4C7-7939-491A-9788-2C5806A1982C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D52B4C7-7939-491A-9788-2C5806A1982C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D52B4C7-7939-491A-9788-2C5806A1982C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D52B4C7-7939-491A-9788-2C5806A1982C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

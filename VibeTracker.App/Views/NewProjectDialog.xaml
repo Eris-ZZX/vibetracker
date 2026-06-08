@@ -1,0 +1,55 @@
+<Window x:Class="VibeTracker.App.Views.NewProjectDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="新建项目" Height="460" Width="500" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" Background="#fafafa">
+    <StackPanel Margin="24,20">
+        <TextBlock Text="新建项目" FontSize="18" FontWeight="Bold" Foreground="#1a1a1a" Margin="0,0,0,20"/>
+
+        <!-- 项目名称 -->
+        <TextBlock Text="项目名称" FontSize="13" Foreground="#555" Margin="0,0,0,4"/>
+        <TextBox x:Name="TxtName" Height="34" FontSize="13" Padding="8,6" BorderBrush="#d0d0d0" BorderThickness="1"/>
+
+        <!-- 项目路径 -->
+        <TextBlock Text="项目路径" FontSize="13" Foreground="#555" Margin="0,14,0,4"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="TxtPath" Height="34" FontSize="13" Padding="8,6"
+                     BorderBrush="#d0d0d0" BorderThickness="1" Background="White"/>
+            <Button Grid.Column="1" Content="📁 选择" Width="60" Height="34" Margin="8,0,0,0"
+                    Background="#4A90D9" Foreground="White" BorderThickness="0" Click="BrowsePath_Click"
+                    Style="{StaticResource RoundedButton}"/>
+        </Grid>
+
+        <!-- 种子需求 -->
+        <TextBlock Text="一句话需求（种子）" FontSize="13" Foreground="#555" Margin="0,14,0,4"/>
+        <TextBox x:Name="TxtSeed" Height="68" FontSize="13" Padding="8,8" TextWrapping="Wrap"
+                 AcceptsReturn="True" BorderBrush="#d0d0d0" BorderThickness="1"
+                 Text="我要做..."/>
+
+        <!-- 标签 -->
+        <TextBlock Text="项目标签" FontSize="13" Foreground="#555" Margin="0,14,0,4"/>
+        <ComboBox x:Name="CmbTag" Height="34" FontSize="13"/>
+
+        <!-- Agent 选择 -->
+        <TextBlock Text="启用 Agent" FontSize="13" Foreground="#555" Margin="0,14,0,4"/>
+        <StackPanel Orientation="Horizontal">
+            <CheckBox x:Name="ChkCodex" Content="Codex Desktop" Margin="0,0,16,0" FontSize="13" IsChecked="True"/>
+            <CheckBox x:Name="ChkClaude" Content="Claude Desktop" Margin="0,0,16,0" FontSize="13" IsChecked="True"/>
+            <CheckBox x:Name="ChkClaudeCode" Content="Claude Code" FontSize="13"/>
+        </StackPanel>
+
+        <!-- 按钮 -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="取消" Width="80" Height="36" FontSize="13"
+                    Background="Transparent" Foreground="#666" BorderBrush="#d0d0d0" BorderThickness="1"
+                    Click="Cancel_Click" Style="{StaticResource RoundedButton}"/>
+            <Button Content="创建" Width="80" Height="36" FontSize="13" Margin="10,0,0,0"
+                    Background="#4A90D9" Foreground="White" BorderThickness="0"
+                    Click="Create_Click" Style="{StaticResource RoundedButton}"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
