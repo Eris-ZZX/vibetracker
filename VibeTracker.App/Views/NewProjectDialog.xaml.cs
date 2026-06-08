@@ -26,23 +26,15 @@ public partial class NewProjectDialog : Window
         CmbTag.SelectedIndex = tags.IndexOf("轻量应用") >= 0 ? tags.IndexOf("轻量应用") : 0;
     }
 
-    // 简化：不使用 FolderBrowserDialog 避免引入 WinForms 依赖
-    // 用户直接键入或粘贴路径
     private void BrowsePath_Click(object sender, RoutedEventArgs e)
     {
-        // 使用 WPF 原生方式：让用户手动输入路径
-        // 如果剪贴板有内容，自动粘贴
-        var clipboard = Clipboard.GetText();
-        if (!string.IsNullOrWhiteSpace(clipboard) && Directory.Exists(clipboard))
+        var path = FolderPicker.Show(this, "选择项目文件夹");
+
+        if (path != null)
         {
-            TxtPath.Text = clipboard;
+            TxtPath.Text = path;
             if (string.IsNullOrWhiteSpace(TxtName.Text))
-                TxtName.Text = new DirectoryInfo(clipboard).Name;
-        }
-        else
-        {
-            MessageBox.Show("请在路径框中直接输入或粘贴项目文件夹路径。\n\n提示：在文件资源管理器中复制文件夹路径后点击此按钮可自动填入。",
-                "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                TxtName.Text = new DirectoryInfo(path).Name;
         }
     }
 

@@ -158,8 +158,11 @@ public class TemplateGenerator
   decision → {type, action, reason}
   problem → {type, action, cause, resolved: false}
   next → {type, action}
+每完成一个功能后，同步更新 plan.md 的 checkbox 并调 update_state：
+  打开 plan.md → 勾选对应功能 → update_state 传 features 数组
 遇到经验或坑调 add_finding：
   {type: ""good""|""pit"", tag, title, body, consequence?}
+新增功能或调整范围时，在 plan.md 增加条目并调 update_state 追加 features
 会话结束前依次调用：
   add_log(type=""next"", action=""下一步做什么"")
   update_state({status, currentTask, completedSteps, inProgressSteps, pendingSteps, blocker, lastAction, nextStep})
