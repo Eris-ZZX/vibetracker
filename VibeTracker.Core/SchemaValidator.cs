@@ -31,12 +31,33 @@ public class SchemaValidator
         if (state.Features != null)
         {
             var validFeatureStatuses = new[] { "todo", "in_progress", "done", "blocked", "dropped" };
+            var validStepStatuses = new[] { "todo", "in_progress", "done", "blocked" };
+            var stepIds = new HashSet<string>();
+
             foreach (var f in state.Features)
             {
                 if (string.IsNullOrWhiteSpace(f.Id))
                     errors.Add("state.json features 中存在缺少 id 的功能项");
                 if (Array.IndexOf(validFeatureStatuses, f.Status) < 0)
                     errors.Add($"state.json features[{f.Id}] status 值无效: {f.Status}");
+
+                // Step 级校验
+                if (f.Steps != null && f.Steps.Count > 0)
+                {
+                    var featureStepIds = new HashSet<string>();
+                    foreach (var s in f.Steps)
+                    {
+                        if (string.IsNullOrWhiteSpace(s.Id))
+                            errors.Add($"state.json features[{f.Id}].steps 中存在缺少 id 的步骤");
+                        else if (featureStepIds.Contains(s.Id))
+                            errors.Add($"state.json features[{f.Id}].steps 中存在重复 id: {s.Id}");
+                        else
+                            featureStepIds.Add(s.Id);
+
+                        if (Array.IndexOf(validStepStatuses, s.Status) < 0)
+                            errors.Add($"state.json features[{f.Id}].steps[{s.Id}] status 值无效: {s.Status}");
+                    }
+                }
             }
         }
 

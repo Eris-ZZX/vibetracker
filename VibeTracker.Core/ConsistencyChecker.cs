@@ -109,14 +109,50 @@ public class ConsistencyChecker
                     $"state.features 完成数 ({featuresDone}) 小于 completedSteps ({summaryDone})，建议同步");
         }
 
-        // 6. features 状态合法性
+        // 6. features 状态合法性 + Step 级校验
         if (state.Features != null)
         {
-            var validStatuses = new[] { "todo", "in_progress", "done", "blocked", "dropped" };
+            var validFeatureStatuses = new[] { "todo", "in_progress", "done", "blocked", "dropped" };
+            var validStepStatuses = new[] { "todo", "in_progress", "done", "blocked" };
+            var totalSteps = 0;
+            var doneSteps = 0;
+
             foreach (var f in state.Features)
             {
-                if (Array.IndexOf(validStatuses, f.Status) < 0)
+                if (Array.IndexOf(validFeatureStatuses, f.Status) < 0)
                     warnings.Add($"feature[{f.Id}] 状态值无效: {f.Status}");
+
+                if (f.Steps != null)
+                {
+                    var featureDoneSteps = 0;
+                    foreach (var s in f.Steps)
+                    {
+                        totalSteps++;
+                        if (Array.IndexOf(validStepStatuses, s.Status) < 0)
+                            warnings.Add($"feature[{f.Id}].steps[{s.Id}] 状态值无效: {s.Status}");
+
+                        if (s.Status == "done") { doneSteps++; featureDoneSteps++; }
+
+                        // Step 全完成但 Feature 未标记 done
+                        if (featureDoneSteps == f.Steps.Count && f.Steps.Count > 0 && f.Status != "done" && f.Status != "blocked")
+                            suggestions.Add($"feature[{f.Id}] 的所有 steps 已完成但 feature 状态为 {f.Status}，建议设为 done");
+
+                        // Step 有 blocked 但 Feature 未标记
+                        if (s.Status == "blocked" && f.Status != "blocked")
+                            suggestions.Add($"feature[{f.Id}].steps[{s.Id}] 为 blocked 但 feature 状态为 {f.Status}，建议同步");
+                    }
+
+                    // Feature done 但 steps 未全完成
+                    if (f.Status == "done" && featureDoneSteps < f.Steps.Count)
+                        warnings.Add($"feature[{f.Id}] 状态为 done 但只有 {featureDoneSteps}/{f.Steps.Count} 个 steps 完成");
+                }
+            }
+
+            if (totalSteps > 0 && doneSteps > 0)
+            {
+                var summaryDone = state.CompletedSteps?.Count ?? 0;
+                if (doneSteps < summaryDone)
+                    suggestions.Add($"step 完成数 ({doneSteps}) 小于 completedSteps ({summaryDone})，建议同步");
             }
         }
 

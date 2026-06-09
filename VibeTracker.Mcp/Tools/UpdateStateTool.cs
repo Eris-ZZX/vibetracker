@@ -155,13 +155,31 @@ features: 功能列表 [{id, title, status}] 用于更新进度
         if (!f.TryGetProperty("steps", out var stepsEl) || stepsEl.ValueKind != JsonValueKind.Array)
             return new();
 
-        return stepsEl.EnumerateArray().Select(s =>
+        var items = new List<StepItem>();
+        var ids = new HashSet<string>();
+        var validStatuses = new[] { "todo", "in_progress", "done", "blocked" };
+
+        foreach (var s in stepsEl.EnumerateArray())
         {
-            var step = new StepItem();
-            if (s.TryGetProperty("id", out var sid)) step.Id = sid.GetString() ?? "";
-            if (s.TryGetProperty("title", out var st)) step.Title = st.GetString() ?? "";
-            if (s.TryGetProperty("status", out var ss)) step.Status = ss.GetString() ?? "todo";
-            return step;
-        }).ToList();
+            var id = s.TryGetProperty("id", out var sid) ? sid.GetString() : null;
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("steps 数组中每项必须包含非空 id 字段");
+            if (ids.Contains(id!))
+                throw new ArgumentException($"steps 中存在重复 id: {id}");
+            ids.Add(id!);
+
+            var status = s.TryGetProperty("status", out var ss) ? ss.GetString() : null;
+            if (status != null && Array.IndexOf(validStatuses, status) < 0)
+                throw new ArgumentException($"step[{id}] status 值无效: {status}，有效值: {string.Join(", ", validStatuses)}");
+
+            items.Add(new StepItem
+            {
+                Id = id!,
+                Title = s.TryGetProperty("title", out var st) ? st.GetString() ?? "" : "",
+                Status = status ?? "todo"
+            });
+        }
+
+        return items;
     }
 }
