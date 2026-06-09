@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeTracker.Mcp", "VibeTrac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeTracker.App", "VibeTracker.App\VibeTracker.App.csproj", "{E373632E-DAEE-42E2-AAB2-61224FDACFCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VibeTracker.Tests", "..\tests\VibeTracker.Tests\VibeTracker.Tests.csproj", "{26557770-F996-463A-9D63-EDA1650837FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E373632E-DAEE-42E2-AAB2-61224FDACFCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26557770-F996-463A-9D63-EDA1650837FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26557770-F996-463A-9D63-EDA1650837FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26557770-F996-463A-9D63-EDA1650837FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26557770-F996-463A-9D63-EDA1650837FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

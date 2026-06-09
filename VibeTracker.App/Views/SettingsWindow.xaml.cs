@@ -67,10 +67,12 @@ public partial class SettingsWindow : Window
     {
         var chip = new Border
         {
-            CornerRadius = new CornerRadius(4),
-            Background = new SolidColorBrush(Color.FromRgb(0xE8, 0xF0, 0xFE)),
-            Padding = new Thickness(8, 4, 8, 4),
-            Margin = new Thickness(3),
+            CornerRadius = new CornerRadius(10),
+            Background = new SolidColorBrush(Color.FromRgb(0xFB, 0xFD, 0xFE)),
+            BorderBrush = new SolidColorBrush(Color.FromRgb(0xD4, 0xE1, 0xE8)),
+            BorderThickness = new Thickness(1),
+            Padding = new Thickness(9, 4, 8, 4),
+            Margin = new Thickness(4),
             Cursor = Cursors.Hand,
             Tag = tag
         };
@@ -81,7 +83,7 @@ public partial class SettingsWindow : Window
         {
             Text = tag,
             FontSize = 12,
-            Foreground = new SolidColorBrush(Color.FromRgb(0x1A, 0x56, 0xDB)),
+            Foreground = new SolidColorBrush(Color.FromRgb(0x5C, 0x77, 0x86)),
             VerticalAlignment = VerticalAlignment.Center
         };
         stack.Children.Add(label);
@@ -90,7 +92,7 @@ public partial class SettingsWindow : Window
         {
             Text = " ✕",
             FontSize = 11,
-            Foreground = new SolidColorBrush(Color.FromRgb(0x99, 0x99, 0x99)),
+            Foreground = new SolidColorBrush(Color.FromRgb(0x97, 0xA6, 0xB0)),
             VerticalAlignment = VerticalAlignment.Center,
             Cursor = Cursors.Hand,
             Tag = tag

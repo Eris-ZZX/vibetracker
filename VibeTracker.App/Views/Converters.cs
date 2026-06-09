@@ -10,7 +10,7 @@ public class SelectedBgConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isSelected && isSelected)
-            return new SolidColorBrush(Color.FromRgb(0xE8, 0xF0, 0xFE));
+            return new SolidColorBrush(Color.FromRgb(0xFB, 0xFD, 0xFE));
         return Brushes.Transparent;
     }
 
@@ -23,8 +23,8 @@ public class SelectedFgConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isSelected && isSelected)
-            return new SolidColorBrush(Color.FromRgb(0x1A, 0x56, 0xDB));
-        return new SolidColorBrush(Color.FromRgb(0x1A, 0x1A, 0x1A));
+            return new SolidColorBrush(Color.FromRgb(0x1E, 0x26, 0x2E));
+        return new SolidColorBrush(Color.FromRgb(0x67, 0x76, 0x82));
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

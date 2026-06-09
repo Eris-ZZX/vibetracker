@@ -4,40 +4,53 @@
              xmlns:views="clr-namespace:VibeTracker.App.Views"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- 色板 -->
-        <SolidColorBrush x:Key="Brush.AppBg" Color="#F6F7F9"/>
+        <!-- Color palette -->
+        <SolidColorBrush x:Key="Brush.AppBg" Color="#EAF2F6"/>
         <SolidColorBrush x:Key="Brush.Surface" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="Brush.SurfaceMuted" Color="#F1F4F8"/>
-        <SolidColorBrush x:Key="Brush.Border" Color="#E2E7EE"/>
-        <SolidColorBrush x:Key="Brush.Text" Color="#172033"/>
-        <SolidColorBrush x:Key="Brush.TextMuted" Color="#667085"/>
-        <SolidColorBrush x:Key="Brush.TextSubtle" Color="#98A2B3"/>
-        <SolidColorBrush x:Key="Brush.Primary" Color="#2563EB"/>
-        <SolidColorBrush x:Key="Brush.PrimarySoft" Color="#EAF1FF"/>
-        <SolidColorBrush x:Key="Brush.Warning" Color="#D97706"/>
-        <SolidColorBrush x:Key="Brush.WarningSoft" Color="#FFF7ED"/>
+        <SolidColorBrush x:Key="Brush.SurfaceRaised" Color="#FBFDFE"/>
+        <SolidColorBrush x:Key="Brush.SurfaceMuted" Color="#EEF5F8"/>
+        <SolidColorBrush x:Key="Brush.Border" Color="#D4E1E8"/>
+        <SolidColorBrush x:Key="Brush.BorderSoft" Color="#E7EFF3"/>
+        <SolidColorBrush x:Key="Brush.Text" Color="#1E262E"/>
+        <SolidColorBrush x:Key="Brush.TextMuted" Color="#677682"/>
+        <SolidColorBrush x:Key="Brush.TextSubtle" Color="#97A6B0"/>
+        <SolidColorBrush x:Key="Brush.Primary" Color="#8FA9B8"/>
+        <SolidColorBrush x:Key="Brush.PrimaryHover" Color="#7795A5"/>
+        <SolidColorBrush x:Key="Brush.PrimaryDark" Color="#5C7786"/>
+        <SolidColorBrush x:Key="Brush.PrimarySoft" Color="#E3EEF3"/>
+        <SolidColorBrush x:Key="Brush.PrimaryLine" Color="#C9DCE5"/>
+        <SolidColorBrush x:Key="Brush.Warning" Color="#8A6654"/>
+        <SolidColorBrush x:Key="Brush.WarningSoft" Color="#FBF7F1"/>
+        <SolidColorBrush x:Key="Brush.WarningLine" Color="#E5D0B9"/>
 
-        <!-- 基础文本 -->
         <Style TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe UI, Microsoft YaHei UI"/>
             <Setter Property="Foreground" Value="{StaticResource Brush.Text}"/>
         </Style>
 
-        <!-- 卡片 -->
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource Brush.Surface}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
+            <Setter Property="Background" Value="{StaticResource Brush.SurfaceRaised}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Brush.BorderSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="18"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Padding" Value="22"/>
         </Style>
 
-        <!-- 圆角按钮样式 -->
+        <Style x:Key="GlassPanel" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Background" Value="#DDFBFDFE"/>
+            <Setter Property="CornerRadius" Value="24"/>
+            <Setter Property="Padding" Value="24"/>
+        </Style>
+
         <Style x:Key="RoundedButton" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Padding" Value="14,7"/>
             <Setter Property="FontFamily" Value="Segoe UI, Microsoft YaHei UI"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="{StaticResource Brush.Surface}"/>
+            <Setter Property="Foreground" Value="{StaticResource Brush.Text}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -45,12 +58,13 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="Root" Property="Opacity" Value="0.92"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.78"/>
@@ -70,7 +84,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource Brush.Border}"/>
             <Setter Property="Background" Value="{StaticResource Brush.Surface}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Padding" Value="10,7"/>
         </Style>
 
         <Style TargetType="ComboBox">
@@ -85,7 +99,13 @@
             <Setter Property="Foreground" Value="{StaticResource Brush.Text}"/>
         </Style>
 
-        <!-- 选中背景色转换器 -->
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Background" Value="{StaticResource Brush.SurfaceMuted}"/>
+            <Setter Property="Foreground" Value="{StaticResource Brush.Primary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
         <views:SelectedBgConverter x:Key="SelectedBgConverter"/>
         <views:SelectedFgConverter x:Key="SelectedFgConverter"/>
     </Application.Resources>
