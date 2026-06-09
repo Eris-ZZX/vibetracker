@@ -28,9 +28,7 @@ public class GetContextTool : IMcpTool
 
     public string Execute(JsonElement arguments)
     {
-        // 尝试恢复备份，失败则明确报错而非静默返回空状态
-        StateModel state;
-        string? stateError = null;
+        // 读 state：损坏时尝试备份恢复，恢复失败则报错（不返回空默认值）
         var (data, err) = _ctx.File.TryReadJson<StateModel>("state.json");
         if (data == null && err != null)
         {
@@ -41,11 +39,12 @@ public class GetContextTool : IMcpTool
             }
             else
             {
-                state = new StateModel();
-                stateError = "state.json 损坏且无法从备份恢复，返回默认空状态。请检查 .vibe/state.json。";
+                throw new InvalidOperationException(
+                    $"state.json 损坏且无法从备份恢复。原始错误: {err}。" +
+                    "请检查 .vibe/state.json 文件内容，或从 .vibe/.bak/ 手动恢复。");
             }
         }
-        state = data ?? new StateModel();
+        var state = data!;
 
         var (allLogs, corruptedLogLines) = _ctx.File.ReadJsonLinesWithStats<LogEntry>("log.jsonl");
         var (allFindings, corruptedFindingLines) = _ctx.File.ReadJsonLinesWithStats<FindingEntry>("findings.jsonl");
@@ -110,7 +109,6 @@ public class GetContextTool : IMcpTool
             corruptedLogLines,
             corruptedFindingLines,
             warnings = quickWarnings,
-            dataError = stateError,
             config = new
             {
                 projectName = config?.ProjectName ?? "",

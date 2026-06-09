@@ -376,6 +376,9 @@ public class FileEngine
 
     public string? GetLatestBackup(string relativePath)
     {
+        if (!Directory.Exists(_bakDir))
+            return null;
+
         var prefix = Path.GetFileNameWithoutExtension(relativePath);
         var ext = Path.GetExtension(relativePath);
 
