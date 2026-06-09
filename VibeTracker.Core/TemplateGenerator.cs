@@ -167,6 +167,8 @@ public class TemplateGenerator
 "  next -> {type, action}\n" +
 "每完成一个功能后，同步更新 plan.md 的 checkbox 并调 update_state：\n" +
 "  打开 plan.md -> 勾选对应功能 -> update_state 传该功能的 features（只传变更项即可，支持增量合并）\n" +
+"Feature 或 Step 状态变更时调 add_log(type=\"status\", action=\"F2: in_progress -> done\")，追踪 Feature 和 Step 两层\n" +
+"需求或功能变更（新增/修改/取消）时调 add_log(type=\"change\", action=\"新增 F5: 数据导出\", reason=\"用户需要\")\n" +
 "遇到经验或坑调 add_finding：\n" +
 "  {type: \"good\"|\"pit\", tag, title, body, consequence?}\n" +
 "新增功能或调整范围时，在 plan.md 增加条目并调 update_state 追加 features\n" +

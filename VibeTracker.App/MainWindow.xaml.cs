@@ -195,6 +195,34 @@ public partial class MainWindow : Window
             TxtNoBugs.Visibility = Visibility.Visible;
         }
 
+        // 状态变更
+        if (_currentDashboard.StatusChanges.Count > 0)
+        {
+            StatusChangesList.Visibility = Visibility.Visible;
+            TxtNoStatusChanges.Visibility = Visibility.Collapsed;
+            StatusChangesList.ItemsSource = null;
+            StatusChangesList.ItemsSource = _currentDashboard.StatusChanges;
+        }
+        else
+        {
+            StatusChangesList.Visibility = Visibility.Collapsed;
+            TxtNoStatusChanges.Visibility = Visibility.Visible;
+        }
+
+        // 需求/功能变更
+        if (_currentDashboard.Changes.Count > 0)
+        {
+            ChangesList.Visibility = Visibility.Visible;
+            TxtNoChanges.Visibility = Visibility.Collapsed;
+            ChangesList.ItemsSource = null;
+            ChangesList.ItemsSource = _currentDashboard.Changes;
+        }
+        else
+        {
+            ChangesList.Visibility = Visibility.Collapsed;
+            TxtNoChanges.Visibility = Visibility.Visible;
+        }
+
     }
 
     // ═══════ 路径不存在处理 ═══════

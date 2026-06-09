@@ -109,5 +109,6 @@
         <views:SelectedBgConverter x:Key="SelectedBgConverter"/>
         <views:SelectedFgConverter x:Key="SelectedFgConverter"/>
         <views:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
+        <views:NullToVisibilityConverter x:Key="NullToVisibility"/>
     </Application.Resources>
 </Application>

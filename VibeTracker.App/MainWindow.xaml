@@ -204,31 +204,40 @@
 
                                     <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource GlassPanel}" Margin="11,0,0,11">
                                         <StackPanel>
-                                            <TextBlock Text="AGENT HANDOFF" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource Brush.TextSubtle}"/>
-                                            <Border Margin="0,24,0,18" CornerRadius="18" Background="{StaticResource Brush.Surface}"
-                                                    BorderBrush="{StaticResource Brush.Border}" BorderThickness="1" Padding="18">
-                                                <StackPanel>
-                                                    <Grid>
-                                                        <TextBlock Text="Codex Desktop" FontSize="16" FontWeight="SemiBold"/>
-                                                        <TextBlock Text="ready" HorizontalAlignment="Right" FontSize="12"
-                                                                   FontWeight="SemiBold" Foreground="{StaticResource Brush.PrimaryDark}"/>
-                                                    </Grid>
-                                                    <ProgressBar Height="9" Value="72" Minimum="0" Maximum="100" Margin="0,16,0,0"/>
-                                                    <TextBlock x:Name="TxtAgentActivity" Text="暂无活动" FontSize="13"
-                                                               Foreground="{StaticResource Brush.TextMuted}" TextWrapping="Wrap"
-                                                               Margin="0,14,0,0"/>
-                                                </StackPanel>
-                                            </Border>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="96"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="上次更新" FontSize="12" Foreground="{StaticResource Brush.TextSubtle}"/>
-                                                <TextBlock Grid.Column="1" x:Name="TxtLastUpdate" Text="-" FontSize="12"
-                                                           Foreground="{StaticResource Brush.TextMuted}" TextWrapping="Wrap"/>
-                                            </Grid>
+                                            <TextBlock Text="STATUS CHANGELOG" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,12"/>
+                                            <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl x:Name="StatusChangesList">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="10" Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
+                                                                    Padding="8" Margin="0,2">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="44"/>
+                                                                        <ColumnDefinition Width="50"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0" Text="{Binding DisplayTime}" FontSize="11"
+                                                                               Foreground="{StaticResource Brush.TextSubtle}"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding Source}" FontSize="11"
+                                                                               Foreground="{StaticResource Brush.PrimaryDark}" FontWeight="SemiBold"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding Action}" FontSize="11"
+                                                                               Foreground="{StaticResource Brush.Text}" TextWrapping="Wrap"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                            <TextBlock x:Name="TxtNoStatusChanges" Text="暂无状态变更" FontSize="11"
+                                                       Foreground="{StaticResource Brush.TextSubtle}"
+                                                       Visibility="Collapsed" Margin="0,6,0,0"/>
+                                            <TextBlock x:Name="TxtAgentActivity" Text="⚫ 暂无活动" FontSize="11"
+                                                       Foreground="{StaticResource Brush.TextMuted}" Margin="0,8,0,0"/>
+                                            <TextBlock x:Name="TxtLastUpdate" Text="-" FontSize="10"
+                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Border>
 
@@ -319,9 +328,46 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Row 2: Feature Checklist -->
-                                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource GlassPanel}"
-                                            Margin="0,11,0,0">
+                                    <!-- Row 2, Col 0: Change Log -->
+                                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource GlassPanel}" Margin="0,11,10,0">
+                                        <StackPanel>
+                                            <TextBlock Text="CHANGE LOG" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,12"/>
+                                            <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl x:Name="ChangesList">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="10" Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
+                                                                    Padding="8" Margin="0,2">
+                                                                <StackPanel>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding DisplayTime}" FontSize="11"
+                                                                                   Foreground="{StaticResource Brush.TextSubtle}" Width="52"/>
+                                                                        <TextBlock Text="{Binding Source}" FontSize="11" FontWeight="SemiBold"
+                                                                                   Foreground="{StaticResource Brush.PrimaryDark}" Width="48"/>
+                                                                        <TextBlock Text="{Binding Action}" FontSize="11"
+                                                                                   Foreground="{StaticResource Brush.Text}" TextWrapping="Wrap"/>
+                                                                    </StackPanel>
+                                                                    <TextBlock Text="{Binding Reason}" FontSize="10"
+                                                                               Foreground="{StaticResource Brush.TextMuted}"
+                                                                               Margin="100,2,0,0" TextWrapping="Wrap"
+                                                                               Visibility="{Binding Reason, Converter={StaticResource NullToVisibility}}"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                            <TextBlock x:Name="TxtNoChanges" Text="暂无变更记录" FontSize="11"
+                                                       Foreground="{StaticResource Brush.TextSubtle}"
+                                                       Visibility="Collapsed" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Row 2, Col 1: Feature Checklist -->
+                                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource GlassPanel}"
+                                            Margin="10,11,0,0">
                                         <StackPanel>
                                             <TextBlock Text="FEATURE CHECKLIST" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,14"/>

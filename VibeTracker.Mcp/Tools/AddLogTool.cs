@@ -11,20 +11,22 @@ public class AddLogTool : IMcpTool
 
     public AddLogTool(ToolContext ctx) => _ctx = ctx;
 
-    public string Description => @"追加一条开发日志。type 必须是 action/decision/problem/next 之一。
+    public string Description => @"追加一条开发日志。type 必须是 action/decision/problem/next/status/change 之一。
 action: {type:""action"", action}
 decision: {type:""decision"", action, reason}
 problem: {type:""problem"", action, cause, resolved:false, resolution?}
-next: {type:""next"", action}";
+next: {type:""next"", action}
+status: {type:""status"", action}
+change: {type:""change"", action, reason?}";
 
     public object InputSchema => new
     {
         type = "object",
         properties = new
         {
-            type = new { type = "string", description = "日志类型: action, decision, problem, next" },
-            action = new { type = "string", description = "完成了什么 / 决策内容 / 遇到的问题 / 下一步" },
-            reason = new { type = "string", description = "(decision 必填) 决策原因" },
+            type = new { type = "string", description = "日志类型: action, decision, problem, next, status, change" },
+            action = new { type = "string", description = "完成了什么 / 决策内容 / 遇到的问题 / 下一步 / 变更描述" },
+            reason = new { type = "string", description = "(decision/change 可选) 原因或决策依据" },
             cause = new { type = "string", description = "(problem 必填) 问题原因" },
             resolution = new { type = "string", description = "(problem 可选) 解决方案" },
             resolved = new { type = "boolean", description = "(problem 必填) 是否已解决，默认 false" }

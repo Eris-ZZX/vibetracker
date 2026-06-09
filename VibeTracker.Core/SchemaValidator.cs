@@ -54,7 +54,7 @@ public class SchemaValidator
         if (string.IsNullOrWhiteSpace(entry.Source))
             errors.Add("log 条目缺少 source");
 
-        var validTypes = new[] { "action", "decision", "problem", "next" };
+        var validTypes = new[] { "action", "decision", "problem", "next", "status", "change" };
         if (Array.IndexOf(validTypes, entry.Type) < 0)
             errors.Add($"log 条目 type 无效: {entry.Type}");
 

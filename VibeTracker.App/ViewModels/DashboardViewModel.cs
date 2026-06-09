@@ -76,9 +76,11 @@ public class DashboardViewModel : INotifyPropertyChanged
     }
 
     public List<LogItemViewModel> RecentLogs { get; } = new();
-    public List<FindingItemViewModel> OpenProblems { get; } = new();
     public List<BugItemViewModel> Bugs { get; } = new();
     public List<FeatureItemViewModel> Features { get; } = new();
+    public List<StatusChangeViewModel> StatusChanges { get; } = new();
+    public List<ChangeLogViewModel> Changes { get; } = new();
+    public List<FindingItemViewModel> OpenProblems { get; } = new();
 
     private bool _isCorrupted;
     public bool IsCorrupted
@@ -143,6 +145,40 @@ public class DashboardViewModel : INotifyPropertyChanged
             Features.Add(vm);
         }
 
+        // 加载全量日志（多处复用）
+        var allLogs = _file.ReadJsonLines<LogEntry>("log.jsonl");
+
+        // 状态变更（Feature + Step 两层）
+        StatusChanges.Clear();
+        foreach (var l in allLogs
+            .Where(l => l.Type == "status")
+            .OrderByDescending(l => l.Time)
+            .Take(15))
+        {
+            StatusChanges.Add(new StatusChangeViewModel
+            {
+                Action = l.Action,
+                Time = l.Time,
+                Source = l.Source
+            });
+        }
+
+        // 需求/功能变更
+        Changes.Clear();
+        foreach (var l in allLogs
+            .Where(l => l.Type == "change")
+            .OrderByDescending(l => l.Time)
+            .Take(15))
+        {
+            Changes.Add(new ChangeLogViewModel
+            {
+                Action = l.Action,
+                Reason = l.Reason,
+                Time = l.Time,
+                Source = l.Source
+            });
+        }
+
         // 最近日志
         var logs = _file.ReadJsonLinesReverse<LogEntry>("log.jsonl", 5);
         RecentLogs.Clear();
@@ -157,8 +193,7 @@ public class DashboardViewModel : INotifyPropertyChanged
             });
         }
 
-        // Bug 追踪（全部 problems，最新的在前）
-        var allLogs = _file.ReadJsonLines<LogEntry>("log.jsonl");
+        // Bug 追踪
         Bugs.Clear();
         foreach (var p in allLogs
             .Where(l => l.Type == "problem")
@@ -247,6 +282,39 @@ public class BugItemViewModel
     public string? Cause { get; set; }
     public string StatusTag => Resolved ? "已修复" : "待修复";
     public string StatusColor => Resolved ? "#5C7786" : "#8A6654";
+    public string DisplayTime
+    {
+        get
+        {
+            if (DateTime.TryParse(Time, out var parsed))
+                return parsed.ToString("MM-dd HH:mm");
+            return Time;
+        }
+    }
+}
+
+public class StatusChangeViewModel
+{
+    public string Action { get; set; } = "";
+    public string Time { get; set; } = "";
+    public string Source { get; set; } = "";
+    public string DisplayTime
+    {
+        get
+        {
+            if (DateTime.TryParse(Time, out var parsed))
+                return parsed.ToString("HH:mm");
+            return Time;
+        }
+    }
+}
+
+public class ChangeLogViewModel
+{
+    public string Action { get; set; } = "";
+    public string? Reason { get; set; }
+    public string Time { get; set; } = "";
+    public string Source { get; set; } = "";
     public string DisplayTime
     {
         get
