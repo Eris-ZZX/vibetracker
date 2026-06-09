@@ -2,12 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace VibeTracker.Core.Models;
 
-public enum FindingType
-{
-    [JsonPropertyName("good")] Good,
-    [JsonPropertyName("pit")] Pit
-}
-
 public class FindingEntry
 {
     [JsonPropertyName("id")]

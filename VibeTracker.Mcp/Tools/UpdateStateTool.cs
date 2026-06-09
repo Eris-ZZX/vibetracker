@@ -137,7 +137,6 @@ features: 功能列表 [{id, title, status}] 用于更新进度
                 throw new ArgumentException($"状态校验失败: {string.Join("; ", validation.Errors)}");
 
             // 更新元数据
-            state.Version++;
             state.UpdatedAt = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
             state.Source = _ctx.Source;
             state.LastSessionId = _ctx.GetSessionId();

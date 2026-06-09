@@ -108,8 +108,9 @@
                         <StackPanel>
                             <TextBlock x:Name="TxtProjectName" Text="请选择项目"
                                        FontSize="34" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="项目状态、记忆与 agent 交接" FontSize="14"
-                                       Foreground="{StaticResource Brush.TextMuted}" Margin="3,8,0,0"/>
+                            <TextBlock x:Name="TxtLastAction" Text="" FontSize="14"
+                                       Foreground="{StaticResource Brush.TextMuted}" Margin="3,8,0,0"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="600"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">

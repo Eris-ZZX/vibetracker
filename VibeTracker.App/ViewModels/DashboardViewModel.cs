@@ -54,6 +54,13 @@ public class DashboardViewModel : INotifyPropertyChanged
     public string ProgressText => $"{DoneFeatures}/{TotalFeatures}";
     public double ProgressPercent => TotalFeatures > 0 ? (double)DoneFeatures / TotalFeatures * 100 : 0;
 
+    private string _lastAction = "";
+    public string LastAction
+    {
+        get => _lastAction;
+        set { _lastAction = value; OnPropertyChanged(); }
+    }
+
     private string _currentTask = "";
     public string CurrentTask
     {
@@ -99,6 +106,7 @@ public class DashboardViewModel : INotifyPropertyChanged
             IsCorrupted = false;
             Status = data.Status;
             CurrentTask = data.CurrentTask;
+            LastAction = data.LastAction;
             LastUpdate = FormatDateTime(data.UpdatedAt, includeDate: true);
             TotalFeatures = data.Features?.Count ?? 0;
             DoneFeatures = data.Features?.Count(f => f.Status == "done") ?? 0;
@@ -113,6 +121,7 @@ public class DashboardViewModel : INotifyPropertyChanged
                 IsCorrupted = false;
                 Status = restored.Data.Status;
                 CurrentTask = restored.Data.CurrentTask;
+                LastAction = restored.Data.LastAction;
                 LastUpdate = FormatDateTime(restored.Data.UpdatedAt, includeDate: true);
                 TotalFeatures = restored.Data.Features?.Count ?? 0;
                 DoneFeatures = restored.Data.Features?.Count(f => f.Status == "done") ?? 0;

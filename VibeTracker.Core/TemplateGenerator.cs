@@ -35,7 +35,6 @@ public class TemplateGenerator
         var state = new StateModel
         {
             ProjectRoot = _file.ProjectRoot,
-            Version = 0,
             Status = "in_progress",
             CurrentTask = "项目初始化",
             Features = new List<FeatureItem>
@@ -160,7 +159,7 @@ public class TemplateGenerator
 "六种 add_log type 及其触发时机：\n" +
 "  action   -> 完成了一个任务或操作\n" +
 "  decision -> 做了技术/架构决策，必须带 reason\n" +
-"  problem  -> 发现 bug 或障碍，必须带 cause，resolved 默认 false\n" +
+"  problem  -> 发现 bug 或障碍，必须带 cause，resolved 默认 false；修复后填 resolution 说明如何解决\n" +
 "  next     -> 下一步计划（通常会话结束时调用一次）\n" +
 "  status   -> Feature 或 Step 状态变更，e.g. \"F2: in_progress -> done\" 或 \"F1.S2: todo -> done\"，每次状态流转必记\n" +
 "  change   -> 需求/功能新增、修改或取消，必须带 reason，e.g. \"新增 F5: 数据导出\"\n\n" +

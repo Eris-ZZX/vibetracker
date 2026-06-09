@@ -36,9 +36,6 @@ public class StateModel
     [JsonPropertyName("schemaVersion")]
     public string SchemaVersion { get; set; } = "1.0.0";
 
-    [JsonPropertyName("version")]
-    public int Version { get; set; }
-
     [JsonPropertyName("projectRoot")]
     public string ProjectRoot { get; set; } = string.Empty;
 

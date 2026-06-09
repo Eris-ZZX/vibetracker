@@ -80,7 +80,7 @@ public class GetContextTool : IMcpTool
         // 最近坑（3 条）
         var recentPits = _ctx.File.ReadJsonLinesReverse<FindingEntry>("findings.jsonl", 3)
             .Where(f => f.Type == "pit")
-            .Select(f => new { tag = f.Tag, title = f.Title });
+            .Select(f => new { tag = f.Tag, title = f.Title, body = f.Body, consequence = f.Consequence });
 
         // 未解决问题数
         var openProblemCount = allLogs.Count(l => l.Type == "problem" && l.Resolved != true);

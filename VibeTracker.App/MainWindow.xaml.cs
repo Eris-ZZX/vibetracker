@@ -131,6 +131,9 @@ public partial class MainWindow : Window
 
         TxtStatusIcon.Text = _currentDashboard.IsCorrupted ? "⚠️ 数据异常" : _currentDashboard.StatusIcon;
         TxtCurrentTask.Text = _currentDashboard.CurrentTask;
+        TxtLastAction.Text = string.IsNullOrWhiteSpace(_currentDashboard.LastAction)
+            ? ""
+            : _currentDashboard.LastAction;
         TxtLastUpdate.Text = _currentDashboard.LastUpdate;
         TxtAgentActivity.Text = _currentDashboard.AgentActivity;
         TxtProgress.Text = _currentDashboard.ProgressText;
