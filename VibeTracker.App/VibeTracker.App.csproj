@@ -13,7 +13,13 @@
     <UseWPF>true</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>Assets\vibetracker-icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\vibetracker-icon*.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\vibetracker-icon.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
   <Target Name="CopyMcpExeToOutput" AfterTargets="Build">
     <ItemGroup>

@@ -152,6 +152,16 @@ public class McpServer
         if (!_tools.TryGetValue(toolName, out var tool))
             return JsonError(id, -32602, $"未知工具: {toolName}");
 
+        // 全局注册时 .vibe/ 可能不存在，返回友好提示
+        if (!_file.Exists() && !_file.VibeDirExists())
+        {
+            return JsonResult(id, new
+            {
+                content = new[] { new { type = "text", text = "当前目录未找到 .vibe/ 项目数据。请在 VibeTracker 中创建项目，或在项目目录下使用。" } },
+                isError = true
+            });
+        }
+
         try
         {
             if (toolName == "get_context")

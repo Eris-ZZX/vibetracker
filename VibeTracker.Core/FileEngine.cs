@@ -44,6 +44,8 @@ public class FileEngine
     public bool Exists() => Directory.Exists(_vibeDir) &&
                             File.Exists(Path.Combine(_vibeDir, "config.json"));
 
+    public bool VibeDirExists() => Directory.Exists(_vibeDir);
+
     // ─────── Mutex ───────
 
     private Mutex? AcquireMutex(int timeoutMs = 5000)
