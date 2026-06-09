@@ -149,32 +149,32 @@ public class TemplateGenerator
     /// </summary>
     public static string GetRulesContent()
     {
-        return @"<!-- VIBE-TRACKER-START -->
-## Vibe Tracker — 过程追踪
-
-如果工具列表中有 list_projects，说明 MCP 运行在 workspace 模式：
-  1. 新会话开始先调用 list_projects，选择当前项目。
-  2. 后续每次调用 Vibe Tracker 工具都带上 projectId，例如 get_context({projectId})、get_plan({projectId})、add_log({projectId, ...})、update_state({projectId, ...})。
-如果没有 list_projects，说明 MCP 运行在单项目模式，工具调用不需要 projectId。
-
-会话开始调 get_context，了解项目状态。
-如首次运行或需要完整规划，调用 get_plan 读取 plan.md 模板。
-每完成一个有意义事项调 add_log：
-  action → {type, action}
-  decision → {type, action, reason}
-  problem → {type, action, cause, resolved: false}
-  next → {type, action}
-每完成一个功能后，同步更新 plan.md 的 checkbox 并调 update_state：
-  打开 plan.md → 勾选对应功能 → update_state 传该功能的 features（只传变更项即可，支持增量合并）
-遇到经验或坑调 add_finding：
-  {type: ""good""|""pit"", tag, title, body, consequence?}
-新增功能或调整范围时，在 plan.md 增加条目并调 update_state 追加 features
-会话结束前依次调用：
-  add_log(type=""next"", action=""下一步做什么"")
-  update_state({status, currentTask, completedSteps, inProgressSteps, pendingSteps, blocker, lastAction, nextStep})
-  check_consistency。如有 warning，修正后重新 update_state。
-可用标签：@frontend @backend @devops @database @npm @bug @config @deploy @general
-<!-- VIBE-TRACKER-END -->
-";
+        return "<!-- VIBE-TRACKER-START -->\n" +
+"## Vibe Tracker — 过程追踪\n\n" +
+"如果工具列表中有 list_projects，说明 MCP 运行在 workspace 模式：\n" +
+"  1. 新会话开始先调用 list_projects，选择当前项目。\n" +
+"  2. 后续每次调用 Vibe Tracker 工具都带上 projectId，例如 get_context({projectId})、get_plan({projectId})、add_log({projectId, ...})、update_state({projectId, ...})。\n" +
+"如果没有 list_projects，说明 MCP 运行在单项目模式，工具调用不需要 projectId。\n\n" +
+"会话开始调 get_context，了解项目状态。\n" +
+"如首次运行或需要完整规划，调用 get_plan 读取 plan.md 模板。\n" +
+"首次生成或大幅修改 plan.md 后，必须立刻将所有 checkbox 功能一次性全量同步到 state.json：\n" +
+"  update_state({features: [{id:\"F1\", title:\"xxx\", status:\"todo\"}, {id:\"F2\", title:\"xxx\", status:\"todo\"}, ...]})\n" +
+"  后续日常工作中只需传变更的功能（增量合并），不必每次全量。\n" +
+"每完成一个有意义事项调 add_log：\n" +
+"  action -> {type, action}\n" +
+"  decision -> {type, action, reason}\n" +
+"  problem -> {type, action, cause, resolved: false}\n" +
+"  next -> {type, action}\n" +
+"每完成一个功能后，同步更新 plan.md 的 checkbox 并调 update_state：\n" +
+"  打开 plan.md -> 勾选对应功能 -> update_state 传该功能的 features（只传变更项即可，支持增量合并）\n" +
+"遇到经验或坑调 add_finding：\n" +
+"  {type: \"good\"|\"pit\", tag, title, body, consequence?}\n" +
+"新增功能或调整范围时，在 plan.md 增加条目并调 update_state 追加 features\n" +
+"会话结束前依次调用：\n" +
+"  add_log(type=\"next\", action=\"下一步做什么\")\n" +
+"  update_state({status, currentTask, completedSteps, inProgressSteps, pendingSteps, blocker, lastAction, nextStep})\n" +
+"  check_consistency。如有 warning，修正后重新 update_state。\n" +
+"可用标签：@frontend @backend @devops @database @npm @bug @config @deploy @general\n" +
+"<!-- VIBE-TRACKER-END -->\n";
     }
 }
