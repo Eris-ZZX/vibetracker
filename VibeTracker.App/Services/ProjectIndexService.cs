@@ -33,8 +33,9 @@ public class ProjectIndexService
             var json = File.ReadAllText(_indexPath, Encoding.UTF8);
             return JsonSerializer.Deserialize<List<ProjectEntry>>(json) ?? new List<ProjectEntry>();
         }
-        catch
+        catch (Exception)
         {
+            Console.Error.WriteLine($"[VibeTracker] 项目索引文件损坏 ({_indexPath})，返回空列表");
             return new List<ProjectEntry>();
         }
     }

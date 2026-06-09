@@ -119,8 +119,9 @@ public class WorkspaceProjectRegistry
             var json = File.ReadAllText(_indexPath, Encoding.UTF8);
             return JsonSerializer.Deserialize<List<ProjectEntry>>(json) ?? new List<ProjectEntry>();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.Error.WriteLine($"[VibeTracker] 工作区索引文件损坏 ({_indexPath}): {ex.Message}");
             return new List<ProjectEntry>();
         }
     }
