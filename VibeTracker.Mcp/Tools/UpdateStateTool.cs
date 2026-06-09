@@ -101,7 +101,8 @@ features: 功能列表 [{id, title, status}] 用于更新进度
                     {
                         Id = id!,
                         Title = f.TryGetProperty("title", out var ft) ? ft.GetString() ?? "" : "",
-                        Status = f.TryGetProperty("status", out var fs) ? fs.GetString() ?? "todo" : "todo"
+                        Status = f.TryGetProperty("status", out var fs) ? fs.GetString() ?? "todo" : "todo",
+                        Steps = ParseSteps(f)
                     });
                 }
 
@@ -114,10 +115,19 @@ features: 功能列表 [{id, title, status}] 用于更新进度
                     {
                         f.Status = update.Status;
                         if (!string.IsNullOrWhiteSpace(update.Title)) f.Title = update.Title;
+                        if (update.Steps.Count > 0) f.Steps = update.Steps;
                         incoming.Remove(f.Id);
                     }
                     return f;
                 }).Concat(incoming.Values).ToList();
+
+                // 自动推导 steps 摘要
+                state.CompletedSteps = state.Features
+                    .Where(f => f.Status == "done").Select(f => f.Title).ToList();
+                state.InProgressSteps = state.Features
+                    .Where(f => f.Status == "in_progress").Select(f => f.Title).ToList();
+                state.PendingSteps = state.Features
+                    .Where(f => f.Status == "todo").Select(f => f.Title).ToList();
             }
 
             // 校验状态
@@ -138,5 +148,20 @@ features: 功能列表 [{id, title, status}] 用于更新进度
         });
 
         return JsonSerializer.Serialize(new { ok = true }, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private static List<StepItem> ParseSteps(JsonElement f)
+    {
+        if (!f.TryGetProperty("steps", out var stepsEl) || stepsEl.ValueKind != JsonValueKind.Array)
+            return new();
+
+        return stepsEl.EnumerateArray().Select(s =>
+        {
+            var step = new StepItem();
+            if (s.TryGetProperty("id", out var sid)) step.Id = sid.GetString() ?? "";
+            if (s.TryGetProperty("title", out var st)) step.Title = st.GetString() ?? "";
+            if (s.TryGetProperty("status", out var ss)) step.Status = ss.GetString() ?? "todo";
+            return step;
+        }).ToList();
     }
 }

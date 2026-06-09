@@ -121,12 +121,25 @@ public class DashboardViewModel : INotifyPropertyChanged
         Features.Clear();
         foreach (var f in features)
         {
-            Features.Add(new FeatureItemViewModel
+            var vm = new FeatureItemViewModel
             {
                 Id = f.Id,
                 Title = f.Title,
                 Status = f.Status
-            });
+            };
+            if (f.Steps != null)
+            {
+                foreach (var s in f.Steps)
+                {
+                    vm.Steps.Add(new StepItemViewModel
+                    {
+                        Id = s.Id,
+                        Title = s.Title,
+                        Status = s.Status
+                    });
+                }
+            }
+            Features.Add(vm);
         }
 
         // 最近日志
@@ -205,6 +218,20 @@ public class LogItemViewModel
     };
 }
 
+public class StepItemViewModel
+{
+    public string Id { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string Status { get; set; } = "todo";
+    public string StatusIcon => Status switch
+    {
+        "done" => "✅",
+        "in_progress" => "🔄",
+        "blocked" => "🚫",
+        _ => "⬜"
+    };
+}
+
 public class FeatureItemViewModel
 {
     public string Id { get; set; } = "";
@@ -218,6 +245,8 @@ public class FeatureItemViewModel
         "dropped" => "❌",
         _ => "⬜"
     };
+    public List<StepItemViewModel> Steps { get; } = new();
+    public bool HasSteps => Steps.Count > 0;
 }
 
 public class FindingItemViewModel

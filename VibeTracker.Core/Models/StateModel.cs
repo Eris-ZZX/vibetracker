@@ -4,6 +4,18 @@ using System.Text.Json.Serialization;
 
 namespace VibeTracker.Core.Models;
 
+public class StepItem
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = string.Empty;
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = "todo";
+}
+
 public class FeatureItem
 {
     [JsonPropertyName("id")]
@@ -14,6 +26,9 @@ public class FeatureItem
 
     [JsonPropertyName("status")]
     public string Status { get; set; } = "todo";
+
+    [JsonPropertyName("steps")]
+    public List<StepItem> Steps { get; set; } = new();
 }
 
 public class StateModel

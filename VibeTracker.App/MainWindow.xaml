@@ -316,24 +316,50 @@
                                             <ItemsControl x:Name="FeatureChecklist">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border CornerRadius="12" Background="{StaticResource Brush.Surface}"
-                                                                BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
-                                                                Padding="12,8" Margin="0,3">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="32"/>
-                                                                    <ColumnDefinition Width="64"/>
-                                                                    <ColumnDefinition Width="*"/>
-                                                                </Grid.ColumnDefinitions>
-                                                                <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" FontSize="14"
-                                                                           VerticalAlignment="Center"/>
-                                                                <TextBlock Grid.Column="1" Text="{Binding Id}" FontSize="12"
-                                                                           FontWeight="SemiBold" Foreground="{StaticResource Brush.TextSubtle}"
-                                                                           VerticalAlignment="Center"/>
-                                                                <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="13"
-                                                                           VerticalAlignment="Center"/>
-                                                            </Grid>
-                                                        </Border>
+                                                        <StackPanel Margin="0,3">
+                                                            <!-- Feature header -->
+                                                            <Border CornerRadius="12" Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
+                                                                    Padding="12,8">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="32"/>
+                                                                        <ColumnDefinition Width="64"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" FontSize="14"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding Id}" FontSize="12"
+                                                                               FontWeight="SemiBold" Foreground="{StaticResource Brush.TextSubtle}"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="13"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="3" Text="{Binding Steps.Count, StringFormat={}+{0} steps}"
+                                                                               FontSize="11" Foreground="{StaticResource Brush.TextSubtle}"
+                                                                               VerticalAlignment="Center" Margin="8,0,0,0"
+                                                                               Visibility="{Binding HasSteps, Converter={StaticResource BoolToVisibility}}"/>
+                                                                </Grid>
+                                                            </Border>
+                                                            <!-- Nested steps -->
+                                                            <ItemsControl ItemsSource="{Binding Steps}" Margin="28,2,0,0"
+                                                                          Visibility="{Binding HasSteps, Converter={StaticResource BoolToVisibility}}">
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Border CornerRadius="8" Background="{StaticResource Brush.SurfaceMuted}"
+                                                                                Padding="8,4" Margin="0,1">
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <TextBlock Text="{Binding StatusIcon}" FontSize="11" Width="22"/>
+                                                                                <TextBlock Text="{Binding Id}" FontSize="11" FontWeight="SemiBold"
+                                                                                           Foreground="{StaticResource Brush.TextSubtle}" Width="44"/>
+                                                                                <TextBlock Text="{Binding Title}" FontSize="11"
+                                                                                           Foreground="{StaticResource Brush.TextMuted}"/>
+                                                                            </StackPanel>
+                                                                        </Border>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </StackPanel>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
