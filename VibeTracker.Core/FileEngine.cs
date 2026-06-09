@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -291,33 +292,35 @@ public class FileEngine
         return results;
     }
 
-    public List<T> ReadJsonLinesReverse<T>(string relativePath, int take) where T : new()
+    public List<T> ReadJsonLinesReverse<T>(string relativePath, int take, Func<T, bool>? predicate = null) where T : new()
     {
         // 从末尾倒序读 N 行（用于 get_context 取最近日志）
         var filePath = Path.Combine(_vibeDir, relativePath);
-        var results = new List<T>();
+        var window = new Queue<T>();
 
-        if (!File.Exists(filePath))
-            return results;
+        if (take <= 0 || !File.Exists(filePath))
+            return new List<T>();
 
         // 小文件直接全读
-        var allLines = File.ReadAllLines(filePath, Encoding.UTF8);
-        for (int i = allLines.Length - 1; i >= 0 && results.Count < take; i--)
+        foreach (var line in File.ReadLines(filePath, Encoding.UTF8))
         {
-            if (string.IsNullOrWhiteSpace(allLines[i]))
+            if (string.IsNullOrWhiteSpace(line))
                 continue;
 
             try
             {
-                var entry = JsonSerializer.Deserialize<T>(allLines[i]);
-                if (entry != null)
-                    results.Add(entry);
+                var entry = JsonSerializer.Deserialize<T>(line);
+                if (entry == null || (predicate != null && !predicate(entry)))
+                    continue;
+
+                window.Enqueue(entry);
+                while (window.Count > take)
+                    window.Dequeue();
             }
             catch (JsonException) { }
         }
 
-        results.Reverse();
-        return results;
+        return window.ToList();
     }
 
     // ─────── Markdown 文件 ───────

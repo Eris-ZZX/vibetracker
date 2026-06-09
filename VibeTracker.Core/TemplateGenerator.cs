@@ -162,12 +162,12 @@ public class TemplateGenerator
 "  decision -> 做了技术/架构决策，必须带 reason\n" +
 "  problem  -> 发现 bug 或障碍，必须带 cause，resolved 默认 false\n" +
 "  next     -> 下一步计划（通常会话结束时调用一次）\n" +
-"  status   -> Feature 或 Step 状态变更时（todo/in_progress/done/blocked），e.g. \"F2: in_progress -> done\"，每次状态流转必记\n" +
+"  status   -> Feature 或 Step 状态变更，e.g. \"F2: in_progress -> done\" 或 \"F1.S2: todo -> done\"，每次状态流转必记\n" +
 "  change   -> 需求/功能新增、修改或取消，必须带 reason，e.g. \"新增 F5: 数据导出\"\n\n" +
 "每完成一个功能后：\n" +
 "  1. 打开 plan.md，勾选对应 checkbox\n" +
 "  2. add_log(type=\"status\", action=\"F2: in_progress -> done\")\n" +
-"  3. update_state 传该功能的 features（只传变更项即可，支持增量合并）\n\n" +
+"  3. update_state 传该功能的 features + steps（只传变更项即可，支持增量合并）\n\n" +
 "发现 bug 时：add_log(type=\"problem\", action=\"xxx\", cause=\"xxx\", resolved=false)\n" +
 "修复 bug 后：\n" +
 "  1. add_log(type=\"status\", action=\"Bug #xxx 已修复\")\n" +
@@ -175,8 +175,9 @@ public class TemplateGenerator
 "  Bug 未解决列表只统计 resolved!=true 的最近记录，旧记录随日志滚动自然沉底。\n" +
 "需求或功能变更（新增/修改/取消）时：add_log(type=\"change\", action=\"新增 F5: 数据导出\", reason=\"用户需要\")\n" +
 "遇到经验或坑调 add_finding：{type: \"good\"|\"pit\", tag, title, body, consequence?}\n\n" +
-"首次生成或大幅修改 plan.md 后，必须立刻将所有 checkbox 功能一次性全量同步到 state.json：\n" +
-"  update_state({features: [{id:\"F1\", title:\"xxx\", status:\"todo\"}, ...]})\n\n" +
+"首次生成或大幅修改 plan.md 后，必须立刻将所有 checkbox 功能一次性全量同步到 state.json，同时把每个功能的执行步骤拆成 steps：\n" +
+"  update_state({features: [{id:\"F1\", title:\"xxx\", status:\"todo\", steps: [{id:\"S1\", title:\"具体步骤1\", status:\"todo\"}, {id:\"S2\", title:\"具体步骤2\", status:\"todo\"}]}, ...]})\n" +
+"  Step 由 agent 根据功能复杂度自行拆解，粒度建议 2-6 步/功能；后续每个 Step 状态变更同样调 add_log(type=\"status\", action=\"F1.S1: todo -> done\")\n\n" +
 "会话结束前：\n" +
 "  add_log(type=\"next\", action=\"下一步做什么\")\n" +
 "  update_state({status, features, currentTask, blocker, lastAction, nextStep})\n" +

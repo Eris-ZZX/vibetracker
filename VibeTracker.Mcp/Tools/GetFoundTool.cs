@@ -31,18 +31,16 @@ public class GetFoundTool : IMcpTool
         if (arguments.TryGetProperty("limit", out var l) && l.TryGetInt32(out var n) && n > 0)
             limit = Math.Min(n, 50); // cap
 
-        // 多读 2 倍以覆盖 type/tag/source 过滤
-        var readCount = Math.Min(limit * 2, 200);
-        var findings = _ctx.File.ReadJsonLinesReverse<FindingEntry>("findings.jsonl", readCount);
-
-        if (arguments.TryGetProperty("type", out var typeFilter) && typeFilter.GetString() is { Length: > 0 } tf)
-            findings = findings.Where(f => f.Type == tf).ToList();
-
-        if (arguments.TryGetProperty("tag", out var tagFilter) && tagFilter.GetString() is { Length: > 0 } tg)
-            findings = findings.Where(f => f.Tag == tg).ToList();
-
-        if (arguments.TryGetProperty("source", out var srcFilter) && srcFilter.GetString() is { Length: > 0 } s)
-            findings = findings.Where(f => f.Source == s).ToList();
+        // 多读可过滤列以覆盖 type/tag/source 过滤，有硬上限
+        var typeFilter = arguments.TryGetProperty("type", out var typeEl) ? typeEl.GetString() : null;
+        var tagFilter = arguments.TryGetProperty("tag", out var tagEl) ? tagEl.GetString() : null;
+        var sourceFilter = arguments.TryGetProperty("source", out var sourceEl) ? sourceEl.GetString() : null;
+        var findings = _ctx.File.ReadJsonLinesReverse<FindingEntry>(
+            "findings.jsonl",
+            limit,
+            f => (string.IsNullOrWhiteSpace(typeFilter) || f.Type == typeFilter)
+                && (string.IsNullOrWhiteSpace(tagFilter) || f.Tag == tagFilter)
+                && (string.IsNullOrWhiteSpace(sourceFilter) || f.Source == sourceFilter));
 
         var results = findings.Take(limit).Select(f => new
         {

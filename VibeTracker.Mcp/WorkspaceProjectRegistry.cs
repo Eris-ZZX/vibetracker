@@ -32,24 +32,25 @@ public class WorkspaceProjectRegistry
         _indexPath = indexPath;
     }
 
-    public IReadOnlyList<WorkspaceProject> Load()
+    public (IReadOnlyList<WorkspaceProject> Projects, string? Error) LoadWithError()
     {
-        var entries = ReadEntries();
-        return entries
+        var (entries, error) = ReadEntriesWithError();
+        return (entries
             .Select(e =>
             {
                 var path = NormalizePath(e.Path);
                 return new WorkspaceProject(
-                    e.Id,
-                    e.Name,
-                    path,
-                    e.Tag,
-                    e.LastActivityAt,
+                    e.Id, e.Name, path, e.Tag, e.LastActivityAt,
                     Directory.Exists(path),
                     File.Exists(System.IO.Path.Combine(path, ".vibe", "config.json")));
             })
             .OrderByDescending(p => p.LastActivityAt)
-            .ToList();
+            .ToList(), error);
+    }
+
+    public IReadOnlyList<WorkspaceProject> Load()
+    {
+        return LoadWithError().Projects;
     }
 
     public WorkspaceProject Resolve(JsonElement arguments)
@@ -109,21 +110,28 @@ public class WorkspaceProjectRegistry
         WriteEntries(entries);
     }
 
-    private List<ProjectEntry> ReadEntries()
+    private (List<ProjectEntry> Entries, string? Error) ReadEntriesWithError()
     {
         if (!File.Exists(_indexPath))
-            return new List<ProjectEntry>();
+            return (new List<ProjectEntry>(), null);
 
         try
         {
             var json = File.ReadAllText(_indexPath, Encoding.UTF8);
-            return JsonSerializer.Deserialize<List<ProjectEntry>>(json) ?? new List<ProjectEntry>();
+            var entries = JsonSerializer.Deserialize<List<ProjectEntry>>(json) ?? new List<ProjectEntry>();
+            return (entries, null);
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[VibeTracker] 工作区索引文件损坏 ({_indexPath}): {ex.Message}");
-            return new List<ProjectEntry>();
+            var msg = $"工作区索引文件损坏 ({_indexPath}): {ex.Message}。请检查 %APPDATA%/VibeTracker/projects.json。";
+            Console.Error.WriteLine($"[VibeTracker] {msg}");
+            return (new List<ProjectEntry>(), msg);
         }
+    }
+
+    private List<ProjectEntry> ReadEntries()
+    {
+        return ReadEntriesWithError().Entries;
     }
 
     private void WriteEntries(List<ProjectEntry> entries)

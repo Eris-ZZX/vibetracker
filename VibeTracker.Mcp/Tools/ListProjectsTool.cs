@@ -23,21 +23,32 @@ public class ListProjectsTool : IMcpTool
 
     public string Execute(JsonElement arguments)
     {
-        var projects = _registry.Load().Select(p => new
+        var (projects, error) = _registry.LoadWithError();
+        var result = new
         {
-            projectId = p.Id,
-            name = p.Name,
-            path = p.Path,
-            tag = p.Tag,
-            lastActivityAt = p.LastActivityAt,
-            exists = p.Exists,
-            vibeReady = p.VibeReady
-        });
-
-        return JsonSerializer.Serialize(new
-        {
-            projects,
+            projects = projects.Select(p => new
+            {
+                projectId = p.Id,
+                name = p.Name,
+                path = p.Path,
+                tag = p.Tag,
+                lastActivityAt = p.LastActivityAt,
+                exists = p.Exists,
+                vibeReady = p.VibeReady
+            }),
             usage = "后续工具调用请传 projectId；如果项目不在列表中，也可以直接传 projectPath。"
-        }, new JsonSerializerOptions { WriteIndented = true });
+        };
+
+        if (error != null)
+        {
+            return JsonSerializer.Serialize(new
+            {
+                projects = result.projects,
+                usage = result.usage,
+                indexWarning = error
+            }, new JsonSerializerOptions { WriteIndented = true });
+        }
+
+        return JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
     }
 }

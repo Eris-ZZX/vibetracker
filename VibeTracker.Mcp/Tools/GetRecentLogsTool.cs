@@ -30,14 +30,12 @@ public class GetRecentLogsTool : IMcpTool
             n = val;
         if (n > 100) n = 100; // cap
 
-        // 多读 3 倍以覆盖 source 过滤，但仍有上限
-        var readCount = Math.Min(n * 3, 500);
-        var logs = _ctx.File.ReadJsonLinesReverse<LogEntry>("log.jsonl", readCount);
-
-        if (arguments.TryGetProperty("source", out var src) && src.GetString() is { Length: > 0 } s)
-            logs = logs.Where(l => l.Source == s).ToList();
-
-        logs = logs.TakeLast(n).ToList();
+        // 当有 source 过滤时多扫一些行以提高命中率，但有硬上限防止大文件 OOM
+        var sourceFilter = arguments.TryGetProperty("source", out var src) ? src.GetString() : null;
+        var logs = _ctx.File.ReadJsonLinesReverse<LogEntry>(
+            "log.jsonl",
+            n,
+            string.IsNullOrWhiteSpace(sourceFilter) ? null : l => l.Source == sourceFilter);
 
         var results = logs.Select(l => new
         {
