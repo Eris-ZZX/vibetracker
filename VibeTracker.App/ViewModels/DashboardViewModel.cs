@@ -77,6 +77,7 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     public List<LogItemViewModel> RecentLogs { get; } = new();
     public List<FindingItemViewModel> OpenProblems { get; } = new();
+    public List<BugItemViewModel> Bugs { get; } = new();
     public List<FeatureItemViewModel> Features { get; } = new();
 
     private bool _isCorrupted;
@@ -156,8 +157,26 @@ public class DashboardViewModel : INotifyPropertyChanged
             });
         }
 
-        // 未解决的坑
+        // Bug 追踪（全部 problems，最新的在前）
         var allLogs = _file.ReadJsonLines<LogEntry>("log.jsonl");
+        Bugs.Clear();
+        foreach (var p in allLogs
+            .Where(l => l.Type == "problem")
+            .OrderByDescending(l => l.Time)
+            .Take(20))
+        {
+            Bugs.Add(new BugItemViewModel
+            {
+                Id = p.Id,
+                Action = p.Action,
+                Resolved = p.Resolved == true,
+                Time = p.Time,
+                Source = p.Source,
+                Cause = p.Cause
+            });
+        }
+
+        // 未解决的坑（兼容旧展示）
         var problems = allLogs.Where(l => l.Type == "problem" && l.Resolved != true).ToList();
         OpenProblems.Clear();
         foreach (var p in problems.Take(5))
@@ -216,6 +235,27 @@ public class LogItemViewModel
         "next" => "➡️",
         _ => "📋"
     };
+}
+
+public class BugItemViewModel
+{
+    public string Id { get; set; } = "";
+    public string Action { get; set; } = "";
+    public bool Resolved { get; set; }
+    public string Time { get; set; } = "";
+    public string Source { get; set; } = "";
+    public string? Cause { get; set; }
+    public string StatusTag => Resolved ? "已修复" : "待修复";
+    public string StatusColor => Resolved ? "#5C7786" : "#8A6654";
+    public string DisplayTime
+    {
+        get
+        {
+            if (DateTime.TryParse(Time, out var parsed))
+                return parsed.ToString("MM-dd HH:mm");
+            return Time;
+        }
+    }
 }
 
 public class StepItemViewModel

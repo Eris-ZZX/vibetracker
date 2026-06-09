@@ -181,19 +181,20 @@ public partial class MainWindow : Window
             TxtNoFeatures.Visibility = Visibility.Visible;
         }
 
-        // 未解决的坑
-        if (_currentDashboard.OpenProblems.Count > 0)
+        // Bug 追踪
+        if (_currentDashboard.Bugs.Count > 0)
         {
-            ProblemsList.Visibility = Visibility.Visible;
-            TxtNoProblems.Visibility = Visibility.Collapsed;
-            ProblemsList.ItemsSource = null;
-            ProblemsList.ItemsSource = _currentDashboard.OpenProblems;
+            BugsList.Visibility = Visibility.Visible;
+            TxtNoBugs.Visibility = Visibility.Collapsed;
+            BugsList.ItemsSource = null;
+            BugsList.ItemsSource = _currentDashboard.Bugs;
         }
         else
         {
-            ProblemsList.Visibility = Visibility.Collapsed;
-            TxtNoProblems.Visibility = Visibility.Visible;
+            BugsList.Visibility = Visibility.Collapsed;
+            TxtNoBugs.Visibility = Visibility.Visible;
         }
+
     }
 
     // ═══════ 路径不存在处理 ═══════

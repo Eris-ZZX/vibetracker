@@ -275,33 +275,45 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource GlassPanel}" Margin="11,11,0,0"
-                                            Background="{StaticResource Brush.WarningSoft}" BorderBrush="{StaticResource Brush.WarningLine}">
+                                    <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource GlassPanel}" Margin="11,11,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="OPEN ATTENTION" FontSize="11" FontWeight="SemiBold"
-                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,16"/>
-                                            <ItemsControl x:Name="ProblemsList">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border CornerRadius="16" Background="{StaticResource Brush.Surface}"
-                                                                BorderBrush="{StaticResource Brush.WarningLine}" BorderThickness="1"
-                                                                Padding="14" Margin="0,5">
-                                                            <Grid>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
-                                                                <TextBlock Text="{Binding Tag}" FontSize="12"
-                                                                           FontWeight="SemiBold" Foreground="{StaticResource Brush.Warning}"/>
-                                                                <TextBlock Grid.Row="1" Text="{Binding Title}" FontSize="13"
-                                                                           Foreground="{StaticResource Brush.Text}" TextWrapping="Wrap"
-                                                                           Margin="0,8,0,0"/>
-                                                            </Grid>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                            <TextBlock x:Name="TxtNoProblems" Text="没有未解决的问题" FontSize="12"
+                                            <TextBlock Text="BUG TRACKER" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,12"/>
+                                            <ScrollViewer MaxHeight="200" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl x:Name="BugsList">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="10" Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
+                                                                    Padding="10" Margin="0,3">
+                                                                <Grid>
+                                                                    <Grid.RowDefinitions>
+                                                                        <RowDefinition Height="Auto"/>
+                                                                        <RowDefinition Height="Auto"/>
+                                                                    </Grid.RowDefinitions>
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="{Binding Action}" FontSize="12" FontWeight="SemiBold"
+                                                                                   Foreground="{StaticResource Brush.Text}" TextWrapping="Wrap"/>
+                                                                        <Border CornerRadius="6" Padding="6,2" Margin="8,0,0,0"
+                                                                                Background="{Binding StatusColor}">
+                                                                            <TextBlock Text="{Binding StatusTag}" FontSize="10" Foreground="White"/>
+                                                                        </Border>
+                                                                    </StackPanel>
+                                                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
+                                                                        <TextBlock FontSize="10" Foreground="{StaticResource Brush.TextSubtle}"
+                                                                                   Text="{Binding DisplayTime}" Width="72"/>
+                                                                        <TextBlock FontSize="10" Foreground="{StaticResource Brush.PrimaryDark}"
+                                                                                   Text="{Binding Source}" Width="52"/>
+                                                                        <TextBlock FontSize="10" Foreground="{StaticResource Brush.TextMuted}"
+                                                                                   Text="{Binding Cause}" TextTrimming="CharacterEllipsis"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                            <TextBlock x:Name="TxtNoBugs" Text="没有记录 bug" FontSize="12"
                                                        Foreground="{StaticResource Brush.TextSubtle}"
                                                        Visibility="Collapsed" Margin="0,8,0,0"/>
                                         </StackPanel>
