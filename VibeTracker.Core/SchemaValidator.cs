@@ -66,6 +66,10 @@ public class SchemaValidator
         if (entry.Type == "problem" && string.IsNullOrWhiteSpace(entry.Cause))
             errors.Add("problem 类型 log 必须填写 cause");
 
+        // change 必须有 reason
+        if (entry.Type == "change" && string.IsNullOrWhiteSpace(entry.Reason))
+            errors.Add("change 类型 log 必须填写 reason");
+
         return new ValidationResult(errors.Count == 0, errors);
     }
 
