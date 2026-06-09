@@ -32,7 +32,9 @@ public class ListProjectsTool : IMcpTool
                 name = p.Name,
                 path = p.Path,
                 tag = p.Tag,
+                createdAt = p.CreatedAt,
                 lastActivityAt = p.LastActivityAt,
+                enabledAgents = p.EnabledAgents,
                 exists = p.Exists,
                 vibeReady = p.VibeReady
             }),

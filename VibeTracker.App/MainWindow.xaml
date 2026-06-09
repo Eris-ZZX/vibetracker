@@ -65,6 +65,9 @@
                                                                    Foreground="{Binding IsSelected, Converter={StaticResource SelectedFgConverter}}"/>
                                                         <TextBlock Text="{Binding LastActivity}" FontSize="11"
                                                                    Foreground="{StaticResource Brush.TextSubtle}" Margin="0,5,0,0"/>
+                                                        <TextBlock Text="{Binding ProjectMetaDisplay}" FontSize="10"
+                                                                   Foreground="{StaticResource Brush.TextSubtle}"
+                                                                   Margin="0,3,0,0" TextTrimming="CharacterEllipsis"/>
                                                         <Border Background="{StaticResource Brush.SurfaceMuted}"
                                                                 CornerRadius="10" Padding="7,2" HorizontalAlignment="Left" Margin="0,8,0,0">
                                                             <TextBlock Text="{Binding Tag}" FontSize="11" Foreground="{StaticResource Brush.TextMuted}"/>
@@ -144,10 +147,10 @@
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanel}" Margin="0,0,11,11"
-                                            Visibility="Collapsed">
+                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanel}" Margin="0,0,11,11">
                                         <Grid>
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
@@ -240,7 +243,7 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource GlassPanel}" Margin="0,11,0,0">
+                                    <Border Grid.Row="3" Grid.ColumnSpan="2" Style="{StaticResource GlassPanel}" Margin="0,11,0,0">
                                         <StackPanel>
                                             <Grid Margin="0,0,0,14">
                                                 <TextBlock Text="RECENT ACTIVITY" FontSize="11" FontWeight="SemiBold"
@@ -268,10 +271,16 @@
                                                                            Foreground="{StaticResource Brush.TextSubtle}"/>
                                                                 <TextBlock Grid.Column="1" Text="{Binding DisplayTime}" FontSize="11"
                                                                            Foreground="{StaticResource Brush.TextSubtle}" TextTrimming="CharacterEllipsis"/>
-                                                                <TextBlock Grid.Column="2" Text="{Binding Source}" FontSize="12"
-                                                                           FontWeight="SemiBold" Foreground="{StaticResource Brush.PrimaryDark}" TextTrimming="CharacterEllipsis"/>
-                                                                <TextBlock Grid.Column="3" Text="{Binding Action}" FontSize="12"
-                                                                           TextWrapping="Wrap"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding Source}" FontSize="12"
+                                                                               FontWeight="SemiBold" Foreground="{StaticResource Brush.PrimaryDark}" TextTrimming="CharacterEllipsis"/>
+                                                                    <StackPanel Grid.Column="3">
+                                                                        <TextBlock Text="{Binding Action}" FontSize="12"
+                                                                                   TextWrapping="Wrap"/>
+                                                                        <TextBlock Text="{Binding SessionId}" FontSize="10"
+                                                                                   Foreground="{StaticResource Brush.TextSubtle}"
+                                                                                   TextTrimming="CharacterEllipsis"
+                                                                                   Visibility="{Binding SessionId, Converter={StaticResource NullToVisibility}}"/>
+                                                                    </StackPanel>
                                                             </Grid>
                                                         </Border>
                                                     </DataTemplate>
@@ -298,6 +307,7 @@
                                                                     <Grid.RowDefinitions>
                                                                         <RowDefinition Height="Auto"/>
                                                                         <RowDefinition Height="Auto"/>
+                                                                        <RowDefinition Height="Auto"/>
                                                                     </Grid.RowDefinitions>
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="{Binding Action}" FontSize="12" FontWeight="SemiBold"
@@ -315,6 +325,10 @@
                                                                         <TextBlock FontSize="10" Foreground="{StaticResource Brush.TextMuted}"
                                                                                    Text="{Binding Cause}" TextTrimming="CharacterEllipsis"/>
                                                                     </StackPanel>
+                                                                    <TextBlock Grid.Row="2" Text="{Binding Resolution}" FontSize="10"
+                                                                               Foreground="{StaticResource Brush.TextMuted}" TextWrapping="Wrap"
+                                                                               Margin="0,4,0,0"
+                                                                               Visibility="{Binding Resolution, Converter={StaticResource NullToVisibility}}"/>
                                                                 </Grid>
                                                             </Border>
                                                         </DataTemplate>
@@ -328,7 +342,7 @@
                                     </Border>
 
                                     <!-- Row 1, Col 0: Change Log -->
-                                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource GlassPanel}" Margin="0,11,10,0">
+                                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource GlassPanel}" Margin="0,11,10,0">
                                         <StackPanel>
                                             <TextBlock Text="CHANGE LOG" FontSize="11" FontWeight="SemiBold"
                                                        Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,12"/>
@@ -364,8 +378,59 @@
                                         </StackPanel>
                                     </Border>
 
+                                    <Border Grid.Row="2" Grid.Column="1" Style="{StaticResource GlassPanel}" Margin="11,11,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="RECENT FINDINGS" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,12"/>
+                                            <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
+                                                <ItemsControl x:Name="FindingsList">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="10" Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
+                                                                    Padding="10" Margin="0,3">
+                                                                <StackPanel>
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock Grid.Column="0" Text="{Binding TypeLabel}" FontSize="10"
+                                                                                   FontWeight="SemiBold" Foreground="{StaticResource Brush.PrimaryDark}"
+                                                                                   Margin="0,0,8,0"/>
+                                                                        <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="12"
+                                                                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                                        <TextBlock Grid.Column="2" Text="{Binding DisplayTime}" FontSize="10"
+                                                                                   Foreground="{StaticResource Brush.TextSubtle}" Margin="8,0,0,0"/>
+                                                                    </Grid>
+                                                                    <TextBlock Text="{Binding Body}" FontSize="10"
+                                                                               Foreground="{StaticResource Brush.TextMuted}" TextWrapping="Wrap"
+                                                                               Margin="0,4,0,0"/>
+                                                                    <TextBlock Text="{Binding Consequence}" FontSize="10"
+                                                                               Foreground="{StaticResource Brush.Warning}" TextWrapping="Wrap"
+                                                                               Margin="0,3,0,0"
+                                                                               Visibility="{Binding Consequence, Converter={StaticResource NullToVisibility}}"/>
+                                                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                                        <TextBlock Text="{Binding Tag}" FontSize="10"
+                                                                                   Foreground="{StaticResource Brush.TextSubtle}"/>
+                                                                        <TextBlock Text="{Binding Source}" FontSize="10"
+                                                                                   Foreground="{StaticResource Brush.PrimaryDark}" Margin="8,0,0,0"/>
+                                                                    </StackPanel>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </ScrollViewer>
+                                            <TextBlock x:Name="TxtNoFindings" Text="No findings yet" FontSize="11"
+                                                       Foreground="{StaticResource Brush.TextSubtle}"
+                                                       Visibility="Collapsed" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+
                                     <!-- Row 0, Col 0: Feature Checklist -->
-                                    <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource GlassPanel}"
+                                    <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource GlassPanel}"
                                             Margin="0,0,10,11">
                                         <StackPanel>
                                             <TextBlock Text="FEATURE CHECKLIST" FontSize="11" FontWeight="SemiBold"

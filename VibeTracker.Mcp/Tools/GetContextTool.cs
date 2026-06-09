@@ -64,23 +64,33 @@ public class GetContextTool : IMcpTool
         var activeFeatures = features
             .Where(f => f.Status == "in_progress" || f.Status == "blocked")
             .Take(5)
-            .Select(f => new { id = f.Id, title = f.Title, status = f.Status });
+            .Select(f => new
+            {
+                id = f.Id,
+                title = f.Title,
+                status = f.Status,
+                steps = f.Steps.Select(s => new { id = s.Id, title = s.Title, status = s.Status })
+            });
 
         // 待做的功能（前 3 条）
         var nextFeatures = features
             .Where(f => f.Status == "todo")
             .Take(3)
-            .Select(f => new { id = f.Id, title = f.Title });
+            .Select(f => new
+            {
+                id = f.Id,
+                title = f.Title,
+                steps = f.Steps.Select(s => new { id = s.Id, title = s.Title, status = s.Status })
+            });
 
         // 最近日志（5 条）
         var recentLogs = allLogs.Count > 5
-            ? allLogs.GetRange(allLogs.Count - 5, 5).Select(l => new { type = l.Type, action = l.Action, time = l.Time, source = l.Source })
-            : allLogs.Select(l => new { type = l.Type, action = l.Action, time = l.Time, source = l.Source });
+            ? allLogs.GetRange(allLogs.Count - 5, 5).Select(ToRecentLog)
+            : allLogs.Select(ToRecentLog);
 
         // 最近坑（3 条）
-        var recentPits = _ctx.File.ReadJsonLinesReverse<FindingEntry>("findings.jsonl", 3)
-            .Where(f => f.Type == "pit")
-            .Select(f => new { tag = f.Tag, title = f.Title, body = f.Body, consequence = f.Consequence });
+        var recentPits = _ctx.File.ReadJsonLinesReverse<FindingEntry>("findings.jsonl", 3, f => f.Type == "pit")
+            .Select(f => new { id = f.Id, tag = f.Tag, title = f.Title, body = f.Body, consequence = f.Consequence, time = f.Time, source = f.Source });
 
         // 未解决问题数
         var openProblemCount = allLogs.Count(l => l.Type == "problem" && l.Resolved != true);
@@ -92,11 +102,17 @@ public class GetContextTool : IMcpTool
         {
             state = new
             {
+                projectRoot = state.ProjectRoot,
+                updatedAt = state.UpdatedAt,
+                lastSessionId = state.LastSessionId,
                 status = state.Status,
                 currentTask = state.CurrentTask,
                 source = state.Source,
                 nextStep = state.NextStep,
                 blocker = state.Blocker,
+                completedSteps = state.CompletedSteps,
+                inProgressSteps = state.InProgressSteps,
+                pendingSteps = state.PendingSteps,
                 featureSummary,
                 activeFeatures,
                 nextFeatures,
@@ -111,6 +127,7 @@ public class GetContextTool : IMcpTool
             {
                 projectName = config?.ProjectName ?? "",
                 seed = config?.Seed ?? "",
+                tags = config?.Tags ?? new List<string>(),
                 contextLines = config?.AgentPreferences?.ContextLines ?? 5,
                 autoCheckConsistency = config?.AgentPreferences?.AutoCheckConsistency ?? true
             }
@@ -118,4 +135,18 @@ public class GetContextTool : IMcpTool
 
         return JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
     }
+
+    private static object ToRecentLog(LogEntry l) => new
+    {
+        id = l.Id,
+        type = l.Type,
+        action = l.Action,
+        time = l.Time,
+        source = l.Source,
+        sessionId = l.SessionId,
+        reason = l.Reason,
+        cause = l.Cause,
+        resolution = l.Resolution,
+        resolved = l.Resolved
+    };
 }

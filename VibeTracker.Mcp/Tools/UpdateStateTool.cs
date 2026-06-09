@@ -40,7 +40,21 @@ features: 功能列表 [{id, title, status}] 用于更新进度
                     {
                         id = new { type = "string" },
                         title = new { type = "string" },
-                        status = new { type = "string" }
+                        status = new { type = "string" },
+                        steps = new
+                        {
+                            type = "array",
+                            items = new
+                            {
+                                type = "object",
+                                properties = new
+                                {
+                                    id = new { type = "string" },
+                                    title = new { type = "string" },
+                                    status = new { type = "string" }
+                                }
+                            }
+                        }
                     }
                 }
             }

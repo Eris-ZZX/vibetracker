@@ -50,6 +50,7 @@ public partial class MainWindow : Window
                 Name = p.Name,
                 Path = p.Path,
                 Tag = p.Tag,
+                CreatedAt = p.CreatedAt,
                 EnabledAgents = p.EnabledAgents,
                 IsMissing = !Directory.Exists(p.Path),
                 IsSelected = p.Id == currentSelectedId
@@ -224,6 +225,19 @@ public partial class MainWindow : Window
         {
             ChangesList.Visibility = Visibility.Collapsed;
             TxtNoChanges.Visibility = Visibility.Visible;
+        }
+
+        if (_currentDashboard.Findings.Count > 0)
+        {
+            FindingsList.Visibility = Visibility.Visible;
+            TxtNoFindings.Visibility = Visibility.Collapsed;
+            FindingsList.ItemsSource = null;
+            FindingsList.ItemsSource = _currentDashboard.Findings;
+        }
+        else
+        {
+            FindingsList.Visibility = Visibility.Collapsed;
+            TxtNoFindings.Visibility = Visibility.Visible;
         }
 
     }

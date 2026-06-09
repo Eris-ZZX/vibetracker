@@ -87,6 +87,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     public List<FeatureItemViewModel> Features { get; } = new();
     public List<StatusChangeViewModel> StatusChanges { get; } = new();
     public List<ChangeLogViewModel> Changes { get; } = new();
+    public List<FindingItemViewModel> Findings { get; } = new();
     public List<FindingItemViewModel> OpenProblems { get; } = new();
 
     private bool _isCorrupted;
@@ -118,13 +119,14 @@ public class DashboardViewModel : INotifyPropertyChanged
             var restored = _file.TryReadJson<StateModel>("state.json");
             if (restored.Data != null)
             {
+                data = restored.Data;
                 IsCorrupted = false;
-                Status = restored.Data.Status;
-                CurrentTask = restored.Data.CurrentTask;
-                LastAction = restored.Data.LastAction;
-                LastUpdate = FormatDateTime(restored.Data.UpdatedAt, includeDate: true);
-                TotalFeatures = restored.Data.Features?.Count ?? 0;
-                DoneFeatures = restored.Data.Features?.Count(f => f.Status == "done") ?? 0;
+                Status = data.Status;
+                CurrentTask = data.CurrentTask;
+                LastAction = data.LastAction;
+                LastUpdate = FormatDateTime(data.UpdatedAt, includeDate: true);
+                TotalFeatures = data.Features?.Count ?? 0;
+                DoneFeatures = data.Features?.Count(f => f.Status == "done") ?? 0;
             }
         }
 
@@ -156,6 +158,7 @@ public class DashboardViewModel : INotifyPropertyChanged
 
         // 加载全量日志（多处复用）
         var allLogs = _file.ReadJsonLines<LogEntry>("log.jsonl");
+        var allFindings = _file.ReadJsonLines<FindingEntry>("findings.jsonl");
 
         // 状态变更（Feature + Step 两层）
         StatusChanges.Clear();
@@ -196,6 +199,7 @@ public class DashboardViewModel : INotifyPropertyChanged
             {
                 Time = l.Time,
                 Source = l.Source,
+                SessionId = l.SessionId,
                 Action = l.Action,
                 Type = l.Type
             });
@@ -215,7 +219,8 @@ public class DashboardViewModel : INotifyPropertyChanged
                 Resolved = p.Resolved == true,
                 Time = p.Time,
                 Source = p.Source,
-                Cause = p.Cause
+                Cause = p.Cause,
+                Resolution = p.Resolution
             });
         }
 
@@ -233,6 +238,23 @@ public class DashboardViewModel : INotifyPropertyChanged
 
         // 活动状态
         var lastCall = _activity.GetLastCall();
+        Findings.Clear();
+        foreach (var f in allFindings
+            .OrderByDescending(f => f.Time)
+            .Take(8))
+        {
+            Findings.Add(new FindingItemViewModel
+            {
+                Tag = f.Tag,
+                Title = f.Title,
+                Body = f.Body,
+                Consequence = f.Consequence,
+                Type = f.Type,
+                Source = f.Source,
+                Time = f.Time
+            });
+        }
+
         if (lastCall != null)
         {
             var text = _activity.GetLastActivityText();
@@ -268,6 +290,7 @@ public class LogItemViewModel
         }
     }
     public string Source { get; set; } = "";
+    public string SessionId { get; set; } = "";
     public string Action { get; set; } = "";
     public string Type { get; set; } = "";
     public string TypeIcon => Type switch
@@ -288,6 +311,7 @@ public class BugItemViewModel
     public string Time { get; set; } = "";
     public string Source { get; set; } = "";
     public string? Cause { get; set; }
+    public string? Resolution { get; set; }
     public string StatusTag => Resolved ? "已修复" : "待修复";
     public string StatusColor => Resolved ? "#5C7786" : "#8A6654";
     public string DisplayTime
@@ -369,4 +393,19 @@ public class FindingItemViewModel
 {
     public string Tag { get; set; } = "";
     public string Title { get; set; } = "";
+    public string Body { get; set; } = "";
+    public string? Consequence { get; set; }
+    public string Type { get; set; } = "";
+    public string Source { get; set; } = "";
+    public string Time { get; set; } = "";
+    public string DisplayTime
+    {
+        get
+        {
+            if (DateTime.TryParse(Time, out var parsed))
+                return parsed.ToString("MM-dd HH:mm");
+            return Time;
+        }
+    }
+    public string TypeLabel => Type == "good" ? "GOOD" : "PIT";
 }

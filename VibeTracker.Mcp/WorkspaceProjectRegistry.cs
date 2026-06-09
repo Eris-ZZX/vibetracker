@@ -14,7 +14,9 @@ public sealed record WorkspaceProject(
     string Name,
     string Path,
     string Tag,
+    string CreatedAt,
     string LastActivityAt,
+    IReadOnlyList<string> EnabledAgents,
     bool Exists,
     bool VibeReady);
 
@@ -40,7 +42,7 @@ public class WorkspaceProjectRegistry
             {
                 var path = NormalizePath(e.Path);
                 return new WorkspaceProject(
-                    e.Id, e.Name, path, e.Tag, e.LastActivityAt,
+                    e.Id, e.Name, path, e.Tag, e.CreatedAt, e.LastActivityAt, e.EnabledAgents,
                     Directory.Exists(path),
                     File.Exists(System.IO.Path.Combine(path, ".vibe", "config.json")));
             })
@@ -83,6 +85,8 @@ public class WorkspaceProjectRegistry
                     normalizedPath,
                     "",
                     "",
+                    "",
+                    Array.Empty<string>(),
                     Directory.Exists(normalizedPath),
                     File.Exists(System.IO.Path.Combine(normalizedPath, ".vibe", "config.json")));
         }

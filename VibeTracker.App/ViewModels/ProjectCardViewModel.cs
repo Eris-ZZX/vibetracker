@@ -11,6 +11,7 @@ public class ProjectCardViewModel : INotifyPropertyChanged
     public string Name { get; set; } = "";
     public string Path { get; set; } = "";
     public string Tag { get; set; } = "轻量应用";
+    public string CreatedAt { get; set; } = "";
 
     private string _status = "in_progress";
     public string Status
@@ -36,6 +37,19 @@ public class ProjectCardViewModel : INotifyPropertyChanged
     }
 
     public List<string> EnabledAgents { get; set; } = new();
+    public string AgentsDisplay => EnabledAgents.Count > 0
+        ? string.Join(" / ", EnabledAgents)
+        : "no agents";
+    public string CreatedDisplay
+    {
+        get
+        {
+            if (DateTime.TryParse(CreatedAt, out var parsed))
+                return parsed.ToString("yyyy-MM-dd");
+            return CreatedAt;
+        }
+    }
+    public string ProjectMetaDisplay => $"created {CreatedDisplay} · {AgentsDisplay}";
 
     private bool _isSelected;
     public bool IsSelected
