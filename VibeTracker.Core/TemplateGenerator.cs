@@ -152,7 +152,12 @@ public class TemplateGenerator
         return @"<!-- VIBE-TRACKER-START -->
 ## Vibe Tracker — 过程追踪
 
-会话开始调 get_context（无参数），了解项目状态。
+如果工具列表中有 list_projects，说明 MCP 运行在 workspace 模式：
+  1. 新会话开始先调用 list_projects，选择当前项目。
+  2. 后续每次调用 Vibe Tracker 工具都带上 projectId，例如 get_context({projectId})、get_plan({projectId})、add_log({projectId, ...})、update_state({projectId, ...})。
+如果没有 list_projects，说明 MCP 运行在单项目模式，工具调用不需要 projectId。
+
+会话开始调 get_context，了解项目状态。
 如首次运行或需要完整规划，调用 get_plan 读取 plan.md 模板。
 每完成一个有意义事项调 add_log：
   action → {type, action}
@@ -160,7 +165,7 @@ public class TemplateGenerator
   problem → {type, action, cause, resolved: false}
   next → {type, action}
 每完成一个功能后，同步更新 plan.md 的 checkbox 并调 update_state：
-  打开 plan.md → 勾选对应功能 → update_state 传该功能的 features（只传变更项即 可，支持增量合并）
+  打开 plan.md → 勾选对应功能 → update_state 传该功能的 features（只传变更项即可，支持增量合并）
 遇到经验或坑调 add_finding：
   {type: ""good""|""pit"", tag, title, body, consequence?}
 新增功能或调整范围时，在 plan.md 增加条目并调 update_state 追加 features

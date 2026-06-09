@@ -143,7 +143,8 @@
                                         <ColumnDefinition Width="0.88*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="360"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
@@ -301,6 +302,42 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                             <TextBlock x:Name="TxtNoProblems" Text="没有未解决的问题" FontSize="12"
+                                                       Foreground="{StaticResource Brush.TextSubtle}"
+                                                       Visibility="Collapsed" Margin="0,8,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Row 2: Feature Checklist -->
+                                    <Border Grid.Row="2" Grid.ColumnSpan="2" Style="{StaticResource GlassPanel}"
+                                            Margin="0,11,0,0">
+                                        <StackPanel>
+                                            <TextBlock Text="FEATURE CHECKLIST" FontSize="11" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource Brush.TextSubtle}" Margin="0,0,0,14"/>
+                                            <ItemsControl x:Name="FeatureChecklist">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border CornerRadius="12" Background="{StaticResource Brush.Surface}"
+                                                                BorderBrush="{StaticResource Brush.BorderSoft}" BorderThickness="1"
+                                                                Padding="12,8" Margin="0,3">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="32"/>
+                                                                    <ColumnDefinition Width="64"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding StatusIcon}" FontSize="14"
+                                                                           VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding Id}" FontSize="12"
+                                                                           FontWeight="SemiBold" Foreground="{StaticResource Brush.TextSubtle}"
+                                                                           VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding Title}" FontSize="13"
+                                                                           VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock x:Name="TxtNoFeatures" Text="暂无功能清单" FontSize="12"
                                                        Foreground="{StaticResource Brush.TextSubtle}"
                                                        Visibility="Collapsed" Margin="0,8,0,0"/>
                                         </StackPanel>

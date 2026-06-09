@@ -12,27 +12,16 @@ class Program
 {
     static void Main(string[] args)
     {
-        string? projectRoot = null;
-        string? source = null;
-
-        for (int i = 0; i < args.Length; i++)
+        if (ProjectRootResolver.IsWorkspaceMode(args))
         {
-            if (args[i] == "--project" && i + 1 < args.Length)
-                projectRoot = args[++i];
-            else if (args[i] == "--source" && i + 1 < args.Length)
-                source = args[++i];
+            var workspaceServer = new WorkspaceMcpServer(ProjectRootResolver.ResolveSource(args));
+            workspaceServer.Run();
+            return;
         }
 
-        // 无 --project 时回退到当前工作目录（Claude Code 等会把 CWD 设为项目根）
-        if (string.IsNullOrWhiteSpace(projectRoot))
-        {
-            projectRoot = Directory.GetCurrentDirectory();
-        }
-
-        if (string.IsNullOrWhiteSpace(source))
-        {
-            source = "unknown";
-        }
+        var resolution = ProjectRootResolver.Resolve(args);
+        var projectRoot = resolution.ProjectRoot;
+        var source = resolution.Source;
 
         if (!Directory.Exists(projectRoot))
         {

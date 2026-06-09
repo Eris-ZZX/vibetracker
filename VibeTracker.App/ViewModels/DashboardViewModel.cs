@@ -77,6 +77,7 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     public List<LogItemViewModel> RecentLogs { get; } = new();
     public List<FindingItemViewModel> OpenProblems { get; } = new();
+    public List<FeatureItemViewModel> Features { get; } = new();
 
     private bool _isCorrupted;
     public bool IsCorrupted
@@ -113,6 +114,19 @@ public class DashboardViewModel : INotifyPropertyChanged
                 TotalFeatures = restored.Data.Features?.Count ?? 0;
                 DoneFeatures = restored.Data.Features?.Count(f => f.Status == "done") ?? 0;
             }
+        }
+
+        // 功能清单
+        var features = data?.Features ?? new List<FeatureItem>();
+        Features.Clear();
+        foreach (var f in features)
+        {
+            Features.Add(new FeatureItemViewModel
+            {
+                Id = f.Id,
+                Title = f.Title,
+                Status = f.Status
+            });
         }
 
         // 最近日志
@@ -188,6 +202,21 @@ public class LogItemViewModel
         "problem" => "⚠️",
         "next" => "➡️",
         _ => "📋"
+    };
+}
+
+public class FeatureItemViewModel
+{
+    public string Id { get; set; } = "";
+    public string Title { get; set; } = "";
+    public string Status { get; set; } = "todo";
+    public string StatusIcon => Status switch
+    {
+        "done" => "✅",
+        "in_progress" => "🔄",
+        "blocked" => "🚫",
+        "dropped" => "❌",
+        _ => "⬜"
     };
 }
 

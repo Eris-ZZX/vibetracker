@@ -167,6 +167,20 @@ public partial class MainWindow : Window
             TxtNoLogs.Visibility = Visibility.Visible;
         }
 
+        // 功能清单
+        if (_currentDashboard.Features.Count > 0)
+        {
+            FeatureChecklist.Visibility = Visibility.Visible;
+            TxtNoFeatures.Visibility = Visibility.Collapsed;
+            FeatureChecklist.ItemsSource = null;
+            FeatureChecklist.ItemsSource = _currentDashboard.Features;
+        }
+        else
+        {
+            FeatureChecklist.Visibility = Visibility.Collapsed;
+            TxtNoFeatures.Visibility = Visibility.Visible;
+        }
+
         // 未解决的坑
         if (_currentDashboard.OpenProblems.Count > 0)
         {

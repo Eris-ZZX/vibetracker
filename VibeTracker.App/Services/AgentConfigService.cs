@@ -19,6 +19,8 @@ public class AgentConfigService
 
     private const string RulesStart = "<!-- VIBE-TRACKER-START -->";
     private const string RulesEnd = "<!-- VIBE-TRACKER-END -->";
+    private const string LegacyServerKey = "vibe-tracker";
+    private const string WorkspaceServerKey = "vibe-tracker-workspace";
 
     public AgentConfigService(string installPath, string projectPath, string projectId)
     {
@@ -28,6 +30,80 @@ public class AgentConfigService
     }
 
     public string McpExePath => Path.Combine(_installPath, "VibeTracker.Mcp.exe");
+
+    private object CreateMcpServerConfig(string source) => new
+    {
+        command = McpExePath,
+        args = new[] { "--project", _projectPath, "--source", source },
+        env = new Dictionary<string, string>
+        {
+            ["VIBE_TRACKER_PROJECT"] = _projectPath,
+            ["VIBE_TRACKER_SOURCE"] = source
+        }
+    };
+
+    private object CreateWorkspaceMcpServerConfig(string source) => new
+    {
+        command = McpExePath,
+        args = new[] { "--workspace", "--source", source },
+        env = new Dictionary<string, string>
+        {
+            ["VIBE_TRACKER_WORKSPACE"] = "1",
+            ["VIBE_TRACKER_SOURCE"] = source
+        }
+    };
+
+    private static bool IsVibeTrackerServerKey(string key)
+        => string.Equals(key, LegacyServerKey, StringComparison.OrdinalIgnoreCase)
+           || string.Equals(key, WorkspaceServerKey, StringComparison.OrdinalIgnoreCase)
+           || key.StartsWith("vibe-tracker-", StringComparison.OrdinalIgnoreCase);
+
+    private static string EscapeTomlString(string value)
+        => value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+    private static string RemoveVibeTrackerTomlSections(string toml)
+    {
+        var normalized = toml.Replace("\r\n", "\n");
+        var lines = normalized.Split('\n');
+        var kept = new List<string>();
+        var skip = false;
+
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+            if (trimmed.StartsWith("[", StringComparison.Ordinal) && trimmed.EndsWith("]", StringComparison.Ordinal))
+                skip = trimmed.StartsWith("[mcp_servers.vibe-tracker", StringComparison.OrdinalIgnoreCase);
+
+            if (!skip)
+                kept.Add(line);
+        }
+
+        return string.Join("\n", kept).TrimEnd();
+    }
+
+    private static JsonElement? ReadExistingJsonConfig(string configPath, out string? recoveryNote)
+    {
+        recoveryNote = null;
+
+        if (!File.Exists(configPath))
+            return null;
+
+        var json = File.ReadAllText(configPath, Encoding.UTF8);
+        if (string.IsNullOrWhiteSpace(json))
+            return null;
+
+        try
+        {
+            return JsonSerializer.Deserialize<JsonElement>(json);
+        }
+        catch (JsonException ex)
+        {
+            var backupPath = $"{configPath}.invalid-{DateTime.Now:yyyyMMdd-HHmmss}.bak";
+            File.Copy(configPath, backupPath, overwrite: true);
+            recoveryNote = $"原配置 JSON 无法解析，已备份到 {backupPath}，并重建 MCP 配置。错误: {ex.Message}";
+            return null;
+        }
+    }
 
     // ═══════ Claude Desktop ═══════
 
@@ -49,14 +125,8 @@ public class AgentConfigService
 
         try
         {
-            // 读取现有配置
-            JsonElement? existingConfig = null;
-            if (File.Exists(configPath))
-            {
-                var json = File.ReadAllText(configPath, Encoding.UTF8);
-                if (!string.IsNullOrWhiteSpace(json))
-                    existingConfig = JsonSerializer.Deserialize<JsonElement>(json);
-            }
+            // 读取现有配置；配置损坏时先备份，再重建 MCP 配置。
+            var existingConfig = ReadExistingJsonConfig(configPath, out var recoveryNote);
 
             // 构建或合并 mcpServers
             Dictionary<string, object> servers;
@@ -70,12 +140,10 @@ public class AgentConfigService
                 servers = new Dictionary<string, object>();
             }
 
-            var serverKey = $"vibe-tracker-{_projectId}";
-            servers[serverKey] = new
-            {
-                command = McpExePath,
-                args = new[] { "--project", _projectPath, "--source", "claude" }
-            };
+            foreach (var key in servers.Keys.Where(IsVibeTrackerServerKey).ToList())
+                servers.Remove(key);
+
+            servers[WorkspaceServerKey] = CreateWorkspaceMcpServerConfig("claude");
 
             // 保留原配置中的其他顶层字段
             var fullConfig = new Dictionary<string, object>
@@ -102,6 +170,15 @@ public class AgentConfigService
 
             WriteRules("CLAUDE.md");
 
+            // 3p 部署：同时写入用户级 CLAUDE.md
+            if (configPath.Contains("Claude-3p"))
+            {
+                var userClaudePath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Claude", "CLAUDE.md");
+                WriteRulesAtPath(userClaudePath);
+            }
+
             // MSIX 备份
             if (configPath.Contains("Packages"))
             {
@@ -110,7 +187,10 @@ public class AgentConfigService
                 File.Copy(configPath, Path.Combine(bakDir, "claude-desktop-config.json"), overwrite: true);
             }
 
-            return (true, "Claude Desktop 配置已写入。请完全退出并重启 Claude Desktop。");
+            var message = "Claude Desktop workspace MCP 配置已写入。请完全退出并重启 Claude Desktop。";
+            if (!string.IsNullOrWhiteSpace(recoveryNote))
+                message += "\n" + recoveryNote;
+            return (true, message);
         }
         catch (Exception ex)
         {
@@ -120,15 +200,21 @@ public class AgentConfigService
 
     private static string? FindClaudeDesktopConfig()
     {
-        // 1. 标准 EXE 路径
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+        // 1. Claude-3p 路径（企业版/第三方部署）
+        var c3pPath = Path.Combine(localAppData, "Claude-3p", "claude_desktop_config.json");
+        if (File.Exists(c3pPath))
+            return c3pPath;
+
+        // 2. 标准 EXE 路径
         var standardPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "Claude", "claude_desktop_config.json");
         if (File.Exists(standardPath))
             return standardPath;
 
-        // 2. MSIX 路径
-        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        // 3. MSIX 路径
         var packagesDir = Path.Combine(localAppData, "Packages");
         if (Directory.Exists(packagesDir))
         {
@@ -159,34 +245,21 @@ public class AgentConfigService
             var dir = Path.GetDirectoryName(configPath)!;
             Directory.CreateDirectory(dir);
 
-            var sectionName = $"vibe-tracker-{_projectId}";
+            var sectionName = WorkspaceServerKey;
             var sectionHeader = $"[mcp_servers.{sectionName}]";
             var newSection = $@"
 {sectionHeader}
-command = ""{McpExePath.Replace("\\", "\\\\")}""
-args = [""--project"", ""{_projectPath.Replace("\\", "\\\\")}"", ""--source"", ""codex""]
+command = ""{EscapeTomlString(McpExePath)}""
+args = [""--workspace"", ""--source"", ""codex""]
+env = {{ VIBE_TRACKER_WORKSPACE = ""1"", VIBE_TRACKER_SOURCE = ""codex"" }}
 enabled = true
 ";
 
             string toml;
             if (File.Exists(configPath))
             {
-                toml = File.ReadAllText(configPath, Encoding.UTF8);
-
-                // 检查是否已存在此 section
-                if (toml.Contains(sectionHeader))
-                {
-                    // 简单替换：先删旧 section，再加新的
-                    var startIdx = toml.IndexOf(sectionHeader);
-                    var endIdx = toml.IndexOf("\n[", startIdx + sectionHeader.Length);
-                    if (endIdx < 0) endIdx = toml.Length;
-                    toml = toml.Remove(startIdx, endIdx - startIdx).TrimEnd();
-                    toml += "\n" + newSection;
-                }
-                else
-                {
-                    toml += newSection;
-                }
+                toml = RemoveVibeTrackerTomlSections(File.ReadAllText(configPath, Encoding.UTF8));
+                toml = toml.TrimEnd() + "\n" + newSection;
             }
             else
             {
@@ -197,7 +270,7 @@ enabled = true
 
             WriteRules("AGENTS.md");
 
-            return (true, "Codex Desktop 配置已写入。请完全退出并重启 Codex Desktop。");
+            return (true, "Codex Desktop workspace MCP 配置已写入。请完全退出并重启 Codex Desktop。");
         }
         catch (Exception ex)
         {
@@ -231,22 +304,14 @@ enabled = true
                     && serversEl.ValueKind == JsonValueKind.Object)
                 {
                     var servers = JsonSerializer.Deserialize<Dictionary<string, object>>(serversEl.GetRawText())!;
-                    servers["vibe-tracker"] = new
-                    {
-                        command = McpExePath,
-                        args = new[] { "--project", _projectPath, "--source", "claude" }
-                    };
+                    servers["vibe-tracker"] = CreateMcpServerConfig("claude");
                     mcpConfig["mcpServers"] = servers;
                 }
                 else
                 {
                     mcpConfig["mcpServers"] = new Dictionary<string, object>
                     {
-                        ["vibe-tracker"] = new
-                        {
-                            command = McpExePath,
-                            args = new[] { "--project", _projectPath, "--source", "claude" }
-                        }
+                        ["vibe-tracker"] = CreateMcpServerConfig("claude")
                     };
                 }
             }
@@ -256,11 +321,7 @@ enabled = true
                 {
                     ["mcpServers"] = new Dictionary<string, object>
                     {
-                        ["vibe-tracker"] = new
-                        {
-                            command = McpExePath,
-                            args = new[] { "--project", _projectPath, "--source", "claude" }
-                        }
+                        ["vibe-tracker"] = CreateMcpServerConfig("claude")
                     }
                 };
             }
@@ -283,6 +344,14 @@ enabled = true
     private void WriteRules(string fileName)
     {
         var rulesPath = Path.Combine(_projectPath, fileName);
+        WriteRulesAtPath(rulesPath);
+    }
+
+    private void WriteRulesAtPath(string rulesPath)
+    {
+        var dir = Path.GetDirectoryName(rulesPath);
+        if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+
         var rules = TemplateGenerator.GetRulesContent();
 
         string content;
@@ -290,7 +359,6 @@ enabled = true
         {
             content = File.ReadAllText(rulesPath, Encoding.UTF8);
 
-            // 替换已有片段
             var start = content.IndexOf(RulesStart);
             var end = content.IndexOf(RulesEnd);
 

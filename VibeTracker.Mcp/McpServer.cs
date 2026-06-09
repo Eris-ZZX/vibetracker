@@ -152,12 +152,17 @@ public class McpServer
         if (!_tools.TryGetValue(toolName, out var tool))
             return JsonError(id, -32602, $"未知工具: {toolName}");
 
-        // 全局注册时 .vibe/ 可能不存在，返回友好提示
-        if (!_file.Exists() && !_file.VibeDirExists())
+        // Global registration can start the MCP process outside a project. Report the
+        // resolved paths so the agent/user can fix the launch config immediately.
+        if (!_file.Exists())
         {
+            var detail = _file.VibeDirExists()
+                ? $"已找到 .vibe/，但缺少 .vibe/config.json。解析到的项目根目录: {_projectRoot}"
+                : $"未找到 .vibe/。解析到的项目根目录: {_projectRoot}；MCP 进程 CWD: {Directory.GetCurrentDirectory()}。请在 MCP 配置中传入 args: [\"--project\", \"<项目路径>\", \"--source\", \"{_source}\"]。";
+
             return JsonResult(id, new
             {
-                content = new[] { new { type = "text", text = "当前目录未找到 .vibe/ 项目数据。请在 VibeTracker 中创建项目，或在项目目录下使用。" } },
+                content = new[] { new { type = "text", text = $"当前目录未找到可用的 .vibe/ 项目数据。{detail}" } },
                 isError = true
             });
         }
