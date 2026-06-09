@@ -70,6 +70,16 @@ public class SchemaValidator
         if (entry.Type == "change" && string.IsNullOrWhiteSpace(entry.Reason))
             errors.Add("change 类型 log 必须填写 reason");
 
+        // 字符串长度限制（防止单个条目过大导致 OOM）
+        if (entry.Action.Length > 2000)
+            errors.Add($"action 字段过长（{entry.Action.Length} 字符，最大 2000）");
+        if ((entry.Reason?.Length ?? 0) > 2000)
+            errors.Add("reason 字段过长（最大 2000 字符）");
+        if ((entry.Cause?.Length ?? 0) > 1000)
+            errors.Add("cause 字段过长（最大 1000 字符）");
+        if ((entry.Resolution?.Length ?? 0) > 2000)
+            errors.Add("resolution 字段过长（最大 2000 字符）");
+
         return new ValidationResult(errors.Count == 0, errors);
     }
 

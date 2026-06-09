@@ -26,8 +26,9 @@ public class GetRecentLogsTool : IMcpTool
     public string Execute(JsonElement arguments)
     {
         int n = 10;
-        if (arguments.TryGetProperty("n", out var nEl) && nEl.TryGetInt32(out var val))
+        if (arguments.TryGetProperty("n", out var nEl) && nEl.TryGetInt32(out var val) && val > 0)
             n = val;
+        if (n > 100) n = 100; // cap
 
         var logs = _ctx.File.ReadJsonLinesReverse<LogEntry>("log.jsonl", int.MaxValue);
 

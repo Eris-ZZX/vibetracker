@@ -179,10 +179,9 @@ public class DashboardViewModel : INotifyPropertyChanged
             });
         }
 
-        // 最近日志
-        var logs = _file.ReadJsonLinesReverse<LogEntry>("log.jsonl", 5);
+        // 最近日志（复用已加载的 allLogs，不重复读文件）
         RecentLogs.Clear();
-        foreach (var l in logs)
+        foreach (var l in allLogs.AsEnumerable().Reverse().Take(5).Reverse())
         {
             RecentLogs.Add(new LogItemViewModel
             {

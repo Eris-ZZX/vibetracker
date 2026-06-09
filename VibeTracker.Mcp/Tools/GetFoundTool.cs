@@ -30,8 +30,8 @@ public class GetFoundTool : IMcpTool
         var findings = _ctx.File.ReadJsonLinesReverse<FindingEntry>("findings.jsonl", int.MaxValue);
         var limit = 20;
 
-        if (arguments.TryGetProperty("limit", out var l) && l.TryGetInt32(out var n))
-            limit = n;
+        if (arguments.TryGetProperty("limit", out var l) && l.TryGetInt32(out var n) && n > 0)
+            limit = Math.Min(n, 50); // cap
 
         if (arguments.TryGetProperty("type", out var typeFilter) && typeFilter.GetString() is { Length: > 0 } tf)
             findings = findings.Where(f => f.Type == tf).ToList();

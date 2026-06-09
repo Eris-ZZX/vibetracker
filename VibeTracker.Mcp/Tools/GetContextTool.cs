@@ -49,8 +49,6 @@ public class GetContextTool : IMcpTool
         var (allLogs, corruptedLogLines) = _ctx.File.ReadJsonLinesWithStats<LogEntry>("log.jsonl");
         var (allFindings, corruptedFindingLines) = _ctx.File.ReadJsonLinesWithStats<FindingEntry>("findings.jsonl");
         var config = _ctx.File.ReadJson<ConfigModel>("config.json");
-        var checker = new ConsistencyChecker(_ctx.File);
-
         // 功能摘要
         var features = state.Features ?? new List<FeatureItem>();
         var featureSummary = new
@@ -87,8 +85,8 @@ public class GetContextTool : IMcpTool
         // 未解决问题数
         var openProblemCount = allLogs.Count(l => l.Type == "problem" && l.Resolved != true);
 
-        // 轻量一致性检查
-        var quickWarnings = checker.QuickCheck();
+        // 轻量一致性检查（复用已加载的 state + logs，不重复读文件）
+        var quickWarnings = ConsistencyChecker.QuickCheckWith(state, allLogs);
 
         var result = new
         {

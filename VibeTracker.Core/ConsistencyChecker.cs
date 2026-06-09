@@ -134,8 +134,6 @@ public class ConsistencyChecker
     public List<string> QuickCheck()
     {
         var warnings = new List<string>();
-
-        // 用 TryReadJson 检测损坏，必要时尝试恢复
         var (data, err) = _file.TryReadJson<StateModel>("state.json");
         StateModel state;
         if (data == null && err != null)
@@ -144,9 +142,20 @@ public class ConsistencyChecker
             if (restored != null) data = restored;
         }
         state = data ?? new StateModel();
-
         var (allLogs, _) = _file.ReadJsonLinesWithStats<LogEntry>("log.jsonl");
+        return QuickCheckCore(state, allLogs, warnings);
+    }
 
+    /// <summary>
+    /// 轻量检查，复用已加载的 state 和 logs（避免 get_context 重复读文件）。
+    /// </summary>
+    public static List<string> QuickCheckWith(StateModel state, List<LogEntry> allLogs)
+    {
+        return QuickCheckCore(state, allLogs, new List<string>());
+    }
+
+    private static List<string> QuickCheckCore(StateModel state, List<LogEntry> allLogs, List<string> warnings)
+    {
         if (!string.IsNullOrEmpty(state.UpdatedAt) && allLogs.Count > 0)
         {
             var lastLog = allLogs[^1];

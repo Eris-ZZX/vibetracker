@@ -148,7 +148,7 @@ public class FileEngine
                         return data;
                     }
                 }
-                catch { /* 备份也损坏，继续往下 */ }
+                catch (Exception ex) { Console.Error.WriteLine($"[VibeTracker] 备份恢复失败 {relativePath}: {ex.Message}"); }
             }
 
             // 无法恢复 → 返回默认值，调用方自行处理

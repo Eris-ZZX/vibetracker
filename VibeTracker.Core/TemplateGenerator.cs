@@ -171,7 +171,8 @@ public class TemplateGenerator
 "发现 bug 时：add_log(type=\"problem\", action=\"xxx\", cause=\"xxx\", resolved=false)\n" +
 "修复 bug 后：\n" +
 "  1. add_log(type=\"status\", action=\"Bug #xxx 已修复\")\n" +
-"  2. 追加一条 add_log(type=\"problem\", action=\"xxx 已修复\", cause=\"xxx\", resolved=true)\n" +
+"  2. 追加一条 add_log(type=\"problem\", action=\"[已修复] xxx\", cause=\"xxx\", resolved=true)\n" +
+"  Bug 未解决列表只统计 resolved!=true 的最近记录，旧记录随日志滚动自然沉底。\n" +
 "需求或功能变更（新增/修改/取消）时：add_log(type=\"change\", action=\"新增 F5: 数据导出\", reason=\"用户需要\")\n" +
 "遇到经验或坑调 add_finding：{type: \"good\"|\"pit\", tag, title, body, consequence?}\n\n" +
 "首次生成或大幅修改 plan.md 后，必须立刻将所有 checkbox 功能一次性全量同步到 state.json：\n" +
